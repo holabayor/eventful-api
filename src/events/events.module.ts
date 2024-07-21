@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { EventsController } from './events.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { EventSchema } from './event.entity';
+import { EventSchema } from './events.entity';
 
 @Module({
   imports: [

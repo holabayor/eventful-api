@@ -12,13 +12,13 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  register(@Body() dto: CreateUserDto) {
-    return this.userService.create(dto);
+  register(@Body() AuthDto: CreateUserDto) {
+    return this.userService.create(AuthDto);
   }
 
   @Post('login')
   @HttpCode(200)
-  login(@Body() dto: LoginUserDto) {
-    return this.authService.login(dto);
+  login(@Body() AuthDto: LoginUserDto) {
+    return this.authService.login(AuthDto);
   }
 }
