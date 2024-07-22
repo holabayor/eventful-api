@@ -43,16 +43,16 @@ export class EventsController {
   @Roles(Role.Creator)
   update(
     @GetUser('id') userId: string,
-    @Param('id') id: string,
+    @Param('id') eventId: string,
     @Body() updateEventDto: UpdateEventDto,
   ) {
-    return this.eventsService.update(userId, id, updateEventDto);
+    return this.eventsService.update(userId, eventId, updateEventDto);
   }
 
   @Delete(':id')
   @Roles(Role.Creator)
   @HttpCode(204)
-  remove(@GetUser('id') userId: string, @Param('id') id: string) {
-    return this.eventsService.delete(userId, id);
+  remove(@GetUser('id') userId: string, @Param('id') eventId: string) {
+    return this.eventsService.delete(userId, eventId);
   }
 }
