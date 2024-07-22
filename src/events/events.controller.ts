@@ -55,4 +55,10 @@ export class EventsController {
   remove(@GetUser('id') userId: string, @Param('id') eventId: string) {
     return this.eventsService.delete(userId, eventId);
   }
+
+  @Post(':id/attend')
+  @Roles(Role.Eventee)
+  addAttendee(@GetUser('id') userId: string, @Param('id') eventId: string) {
+    return this.eventsService.addAttendee(userId, eventId);
+  }
 }

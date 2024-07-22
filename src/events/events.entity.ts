@@ -32,11 +32,11 @@ export class Event extends Document {
   // @Prop({ type: [{ type: Types.ObjectId, ref: User.name }] })
   // attendees: Types.ObjectId[];
 
-  @Prop({ type: String })
-  attendees: string[];
+  @Prop({ type: [String] })
+  attendees: Set<string>;
 
   @Prop({ type: String })
-  reminderDate: string;
+  defaultReminderDate: string;
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

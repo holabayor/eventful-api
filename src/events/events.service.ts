@@ -21,6 +21,19 @@ export class EventsService {
 
   async create(userId: string, createEventDto: CreateEventDto): Promise<Event> {
     try {
+      // Combine date and time into a single Date object
+      const eventDateTime = new Date(createEventDto.date);
+      const [hours, minutes] = createEventDto.time.split(':');
+      eventDateTime.setHours(parseInt(hours), parseInt(minutes));
+
+      if (!createEventDto.defaultReminderDate) {
+        // Set the default reminder date to 1 day before the event
+        const defaultReminderDate = new Date(
+          eventDateTime.getTime() - 24 * 60 * 60 * 1000,
+        );
+        createEventDto.defaultReminderDate = defaultReminderDate.toISOString();
+      }
+
       const event = new this.eventModel({ ...createEventDto, creator: userId });
       await event.save();
       return event;
@@ -47,44 +60,46 @@ export class EventsService {
 
   async update(
     userId: string,
-    eventId: string,
+    id: string,
     updateEventDto: UpdateEventDto,
   ): Promise<Event> {
-    const event = await this.findById(eventId);
+    const event = await this.eventModel
+      .findOneAndUpdate(
+        { id, creator: userId },
+        { $set: updateEventDto },
+        {
+          new: true,
+        },
+      )
+      .exec();
 
     if (!event) {
-      throw new NotFoundException('Event not found');
-    }
-
-    if (event.creator.toString() !== userId) {
       throw new ForbiddenException('You are not authorized');
     }
 
-    return await this.eventModel
-      .findByIdAndUpdate(eventId, updateEventDto, { new: true })
-      .exec();
+    return event;
   }
 
   async delete(userId: string, id: string): Promise<boolean> {
-    const event = await this.findById(id);
+    const result = await this.eventModel
+      .findOneAndDelete({ id, creator: userId })
+      .exec();
 
-    if (!event) {
-      throw new NotFoundException('Event not found');
-    }
-
-    if (event.creator.toString() !== userId) {
+    if (!result) {
       throw new ForbiddenException('You are not authorized');
     }
-    const result = await this.eventModel.findByIdAndDelete(id).exec();
     return !!result;
   }
 
   async addAttendee(userId: string, eventId: string) {
     const event = await this.findById(eventId);
 
-    event.attendees.push(userId);
+    console.log('Event', event);
+    if (!event.attendees) {
+      event.attendees = new Set<string>();
+    }
 
-    await event.save();
+    event.attendees.add(userId);
 
     const user = await this.userService.findById(userId);
 
@@ -93,9 +108,10 @@ export class EventsService {
       email: user.email,
       eventId,
       eventTitle: event.title,
-      reminderDate: event.reminderDate,
+      reminderDate: event.defaultReminderDate,
     });
 
+    await event.save();
     return event;
   }
 }

@@ -32,7 +32,7 @@ export class CreateEventDto {
 
   @IsDateString()
   @IsOptional()
-  reminderDate?: Date;
+  defaultReminderDate?: string;
 }
 
 export class UpdateEventDto extends PartialType(CreateEventDto) {}
