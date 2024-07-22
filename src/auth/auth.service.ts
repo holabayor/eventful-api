@@ -26,11 +26,11 @@ export class AuthService {
   async login(dto: LoginUserDto) {
     const user = await this.userService.findByField('email', dto.email);
 
-    if (!user || !(await bcrypt.compare(dto.password, user.password))) {
+    if (!(await bcrypt.compare(dto.password, user.password))) {
       throw new UnauthorizedException('Invalid login credentials');
     }
     const token = this.jwtService.sign(
-      { userId: user.id },
+      { userId: user.id, role: user.role },
       {
         expiresIn: '60m',
         secret: this.config.get('JWT_SECRET'),

@@ -8,25 +8,25 @@ import {
   Delete,
   UseGuards,
   HttpCode,
-  Req,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
 import { CreateEventDto, UpdateEventDto } from './dto';
-import { JwtAuthGuard } from 'src/auth/guard';
-import { GetUser } from 'src/auth/decorator';
+import { JwtAuthGuard, RolesGuard } from '../auth/guard';
+import { GetUser, Roles } from '../auth/decorator';
+import { Role } from '../auth/guard/roles';
 
 @Controller('events')
-@UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard, RolesGuard)
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
+  @Roles(Role.Creator)
   create(
     @GetUser('id') userId: string,
     @Body() createEventDto: CreateEventDto,
   ) {
-    createEventDto.creator = userId;
-    return this.eventsService.create(createEventDto);
+    return this.eventsService.create(userId, createEventDto);
   }
 
   @Get()
@@ -40,6 +40,7 @@ export class EventsController {
   }
 
   @Patch(':id')
+  @Roles(Role.Creator)
   update(
     @GetUser('id') userId: string,
     @Param('id') id: string,
@@ -49,6 +50,7 @@ export class EventsController {
   }
 
   @Delete(':id')
+  @Roles(Role.Creator)
   @HttpCode(204)
   remove(@GetUser('id') userId: string, @Param('id') id: string) {
     return this.eventsService.delete(userId, id);

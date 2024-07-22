@@ -33,7 +33,11 @@ export class UserService {
     return user;
   }
 
-  async findByField(fieldName: keyof User, value: any): Promise<User | null> {
-    return await this.userModel.findOne({ [fieldName]: value }).exec();
+  async findByField(fieldName: keyof User, value: any): Promise<User> {
+    const user = await this.userModel.findOne({ [fieldName]: value }).exec();
+    if (!user) {
+      throw new NotFoundException(`User not found`);
+    }
+    return user;
   }
 }

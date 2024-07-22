@@ -8,14 +8,20 @@ import { CreateEventDto, UpdateEventDto } from './dto';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Event } from './events.entity';
+import { UserService } from 'src/users/user.service';
+import { NotificationsService } from 'src/notifications/notifications.service';
 
 @Injectable()
 export class EventsService {
-  constructor(@InjectModel(Event.name) private eventModel: Model<Event>) {}
+  constructor(
+    @InjectModel(Event.name) private eventModel: Model<Event>,
+    private readonly userService: UserService,
+    private readonly notificationsService: NotificationsService,
+  ) {}
 
-  async create(createEventDto: CreateEventDto): Promise<Event> {
+  async create(userId: string, createEventDto: CreateEventDto): Promise<Event> {
     try {
-      const event = new this.eventModel(createEventDto);
+      const event = new this.eventModel({ ...createEventDto, creator: userId });
       await event.save();
       return event;
     } catch (error) {
@@ -71,5 +77,25 @@ export class EventsService {
     }
     const result = await this.eventModel.findByIdAndDelete(id).exec();
     return !!result;
+  }
+
+  async addAttendee(userId: string, eventId: string) {
+    const event = await this.findById(eventId);
+
+    event.attendees.push(userId);
+
+    await event.save();
+
+    const user = await this.userService.findById(userId);
+
+    await this.notificationsService.createNotification({
+      userId,
+      email: user.email,
+      eventId,
+      eventTitle: event.title,
+      reminderDate: event.reminderDate,
+    });
+
+    return event;
   }
 }

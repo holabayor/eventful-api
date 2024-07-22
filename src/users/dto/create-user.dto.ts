@@ -2,16 +2,14 @@ import {
   IsEmail,
   IsIn,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
-  readonly first_name: string;
-
-  @IsString()
-  readonly last_name: string;
+  readonly name: string;
 
   @IsString()
   @IsEmail()
@@ -22,6 +20,7 @@ export class CreateUserDto {
   readonly password: string;
 
   @IsString()
+  @IsOptional()
   @IsIn(['creator', 'eventee'])
   readonly role: string;
 }

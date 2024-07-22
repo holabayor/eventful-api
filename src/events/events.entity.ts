@@ -11,7 +11,7 @@ import { User } from 'src/users/user.entity';
   },
 })
 export class Event extends Document {
-  @Prop({ required: true, type: String, unique: true, trim: true })
+  @Prop({ required: true, type: String, trim: true })
   title: string;
 
   @Prop({ required: true, type: String })
@@ -21,13 +21,22 @@ export class Event extends Document {
   date: string;
 
   @Prop({ required: true, type: String })
+  time: string;
+
+  @Prop({ required: true, type: String })
   location: string;
 
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   creator: Types.ObjectId;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: User.name }] })
-  attendees: Types.ObjectId[];
+  // @Prop({ type: [{ type: Types.ObjectId, ref: User.name }] })
+  // attendees: Types.ObjectId[];
+
+  @Prop({ type: String })
+  attendees: string[];
+
+  @Prop({ type: String })
+  reminderDate: string;
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);
