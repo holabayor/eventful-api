@@ -4,8 +4,8 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
-  Matches,
 } from 'class-validator';
+import { IsFutureDate, IsValidTime } from 'src/common/validators';
 
 export class CreateEventDto {
   @IsString()
@@ -17,14 +17,13 @@ export class CreateEventDto {
   readonly description: string;
 
   @IsDateString()
+  @IsFutureDate()
   @IsNotEmpty({ message: 'Date must be in the YYYY-MM-DD format' })
   readonly date: Date;
 
   @IsString()
-  @Matches(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, {
-    message: 'Time must be in HH:mm format',
-  })
-  readonly time: string;
+  @IsValidTime()
+  time: string;
 
   @IsString()
   @IsNotEmpty()

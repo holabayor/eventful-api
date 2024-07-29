@@ -1,30 +1,49 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { CreateEventDto, UpdateEventDto } from './dto';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { Event } from './events.entity';
 import { UserService } from 'src/users/user.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
+import { TicketService } from 'src/ticket/ticket.service';
+import { QRCodeService } from 'src/qrcode/qrcode.service';
 
 @Injectable()
 export class EventsService {
   constructor(
     @InjectModel(Event.name) private eventModel: Model<Event>,
+    private readonly qrService: QRCodeService,
     private readonly userService: UserService,
     private readonly notificationsService: NotificationsService,
+    private readonly ticketService: TicketService,
   ) {}
 
-  async create(userId: string, createEventDto: CreateEventDto): Promise<Event> {
+  private parseDateTime(date: string, time: string): Date {
+    const eventDateTime = new Date(date);
+    const [hours, minutes] = time.split(':');
+    eventDateTime.setHours(parseInt(hours), parseInt(minutes));
+    return eventDateTime;
+  }
+
+  async create(
+    creatorId: Types.ObjectId,
+    createEventDto: CreateEventDto,
+  ): Promise<Event> {
     try {
       // Combine date and time into a single Date object
       const eventDateTime = new Date(createEventDto.date);
       const [hours, minutes] = createEventDto.time.split(':');
       eventDateTime.setHours(parseInt(hours), parseInt(minutes));
+
+      createEventDto.time = createEventDto.time
+        .replace(/\s+/g, '')
+        .toUpperCase();
 
       if (!createEventDto.defaultReminderDate) {
         // Set the default reminder date to 1 day before the event
@@ -34,7 +53,16 @@ export class EventsService {
         createEventDto.defaultReminderDate = defaultReminderDate.toISOString();
       }
 
-      const event = new this.eventModel({ ...createEventDto, creator: userId });
+      const event = new this.eventModel({
+        ...createEventDto,
+        creator: creatorId,
+      });
+
+      // Create a QR code for the event
+      event.eventQrCode = await this.qrService.generateQRCode(
+        `event:${event.id}`,
+      );
+
       await event.save();
       return event;
     } catch (error) {
@@ -46,11 +74,14 @@ export class EventsService {
   }
 
   async findAll(): Promise<Event[]> {
-    const events = await this.eventModel.find().exec();
+    const events = await this.eventModel
+      .find()
+      .populate('creator', 'name -_id')
+      .exec();
     return events;
   }
 
-  async findById(id: string): Promise<Event> {
+  async findById(id: Types.ObjectId): Promise<Event> {
     const event = await this.eventModel.findById(id).exec();
     if (!event) {
       throw new NotFoundException(`Event not found`);
@@ -59,8 +90,8 @@ export class EventsService {
   }
 
   async update(
-    userId: string,
-    id: string,
+    userId: Types.ObjectId,
+    id: Types.ObjectId,
     updateEventDto: UpdateEventDto,
   ): Promise<Event> {
     const event = await this.eventModel
@@ -80,7 +111,7 @@ export class EventsService {
     return event;
   }
 
-  async delete(userId: string, id: string): Promise<boolean> {
+  async delete(userId: Types.ObjectId, id: Types.ObjectId): Promise<boolean> {
     const result = await this.eventModel
       .findOneAndDelete({ id, creator: userId })
       .exec();
@@ -91,17 +122,26 @@ export class EventsService {
     return !!result;
   }
 
-  async addAttendee(userId: string, eventId: string) {
-    const event = await this.findById(eventId);
+  async addAttendee(userId: Types.ObjectId, eventId: Types.ObjectId) {
+    const event = await this.eventModel.findById(eventId).exec();
 
-    console.log('Event', event);
-    if (!event.attendees) {
-      event.attendees = new Set<string>();
+    if (!event) {
+      throw new NotFoundException('Event not found');
     }
 
-    event.attendees.add(userId);
+    // Check if the user is already an attende
+    if (event.attendees.includes(userId)) {
+      throw new BadRequestException('User is already an attendee');
+    }
+    event.attendees.push(userId);
 
+    const { qrCode } = await this.ticketService.create(eventId, userId);
     const user = await this.userService.findById(userId);
+    this.notificationsService.sendTicketNotification(
+      user.email,
+      event.title,
+      qrCode,
+    );
 
     await this.notificationsService.createNotification({
       userId,
@@ -113,5 +153,9 @@ export class EventsService {
 
     await event.save();
     return event;
+  }
+
+  async verifyQRCode(eventId: string, qrCode: string) {
+    this.ticketService.verifyTicketQRCode(eventId, qrCode);
   }
 }

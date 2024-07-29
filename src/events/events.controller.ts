@@ -14,6 +14,7 @@ import { CreateEventDto, UpdateEventDto } from './dto';
 import { JwtAuthGuard, RolesGuard } from '../auth/guard';
 import { GetUser, Roles } from '../auth/decorator';
 import { Role } from '../auth/guard/roles';
+import { Types } from 'mongoose';
 
 @Controller('events')
 @UseGuards(JwtAuthGuard, RolesGuard)
@@ -22,43 +23,59 @@ export class EventsController {
 
   @Post()
   @Roles(Role.Creator)
-  create(
-    @GetUser('id') userId: string,
+  async create(
+    @GetUser('id') userId: Types.ObjectId,
     @Body() createEventDto: CreateEventDto,
   ) {
-    return this.eventsService.create(userId, createEventDto);
+    const event = await this.eventsService.create(userId, createEventDto);
+    return { message: 'Event created', event };
   }
 
   @Get()
-  findAll() {
-    return this.eventsService.findAll();
+  async findAll() {
+    const events = await this.eventsService.findAll();
+    return { message: 'Events retrieval successful', events };
   }
 
   @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.eventsService.findById(id);
+  async findById(@Param('id') id: Types.ObjectId) {
+    const event = await this.eventsService.findById(id);
+    return { message: 'Event retrieval successful', event };
   }
 
   @Patch(':id')
   @Roles(Role.Creator)
-  update(
-    @GetUser('id') userId: string,
-    @Param('id') eventId: string,
+  async update(
+    @GetUser('id') userId: Types.ObjectId,
+    @Param('id') eventId: Types.ObjectId,
     @Body() updateEventDto: UpdateEventDto,
   ) {
-    return this.eventsService.update(userId, eventId, updateEventDto);
+    const event = await this.eventsService.update(
+      userId,
+      eventId,
+      updateEventDto,
+    );
+    return { message: 'Event update successful', event };
   }
 
   @Delete(':id')
   @Roles(Role.Creator)
   @HttpCode(204)
-  remove(@GetUser('id') userId: string, @Param('id') eventId: string) {
+  remove(
+    @GetUser('id') userId: Types.ObjectId,
+    @Param('id') eventId: Types.ObjectId,
+  ) {
     return this.eventsService.delete(userId, eventId);
   }
 
   @Post(':id/attend')
   @Roles(Role.Eventee)
-  addAttendee(@GetUser('id') userId: string, @Param('id') eventId: string) {
-    return this.eventsService.addAttendee(userId, eventId);
+  @HttpCode(200)
+  async addAttendee(
+    @GetUser('id') userId: Types.ObjectId,
+    @Param('id') eventId: Types.ObjectId,
+  ) {
+    const event = await this.eventsService.addAttendee(userId, eventId);
+    return { message: 'Successful', event };
   }
 }

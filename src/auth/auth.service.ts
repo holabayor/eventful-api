@@ -20,7 +20,7 @@ export class AuthService {
       ...createUserDto,
       password: hashedPassword,
     });
-    return user;
+    return { message: 'User created successfully', user };
   }
 
   async login(dto: LoginUserDto) {
@@ -36,6 +36,6 @@ export class AuthService {
         secret: this.config.get('JWT_SECRET'),
       },
     );
-    return { token, user };
+    return { message: 'Login successful', data: { token, user } };
   }
 }

@@ -3,9 +3,9 @@ import * as QRCode from 'qrcode';
 
 @Injectable()
 export class QRCodeService {
-  async generateQRCode(data: any): Promise<string> {
+  async generateQRCode(text: string): Promise<string> {
     try {
-      return await QRCode.toDataURL(data);
+      return await QRCode.toDataURL(text);
     } catch (error) {
       throw new Error('Failed to generate QR code');
     }

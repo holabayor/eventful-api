@@ -1,5 +1,6 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { User } from 'src/users/user.entity';
 
 @Schema({
   toJSON: {
@@ -10,14 +11,14 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
   },
 })
 export class Notification extends Document {
-  @Prop({ required: true })
-  userId: string;
+  @Prop({ required: true, type: Types.ObjectId, ref: User.name })
+  userId: Types.ObjectId;
 
   @Prop({ required: true, type: String })
   email: string;
 
-  @Prop({ required: true, type: String })
-  eventId: string;
+  @Prop({ required: true, type: Types.ObjectId, ref: Event.name })
+  eventId: Types.ObjectId;
 
   @Prop({ required: true, type: String })
   eventTitle: string;

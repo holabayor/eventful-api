@@ -29,11 +29,11 @@ export class Event extends Document {
   @Prop({ type: Types.ObjectId, ref: User.name, required: true })
   creator: Types.ObjectId;
 
-  // @Prop({ type: [{ type: Types.ObjectId, ref: User.name }] })
-  // attendees: Types.ObjectId[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: User.name }] })
+  attendees: Types.ObjectId[];
 
-  @Prop({ type: [String] })
-  attendees: Set<string>;
+  @Prop({ type: String })
+  eventQrCode: string;
 
   @Prop({ type: String })
   defaultReminderDate: string;

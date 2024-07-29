@@ -5,6 +5,8 @@ import { EventsModule } from './events/events.module';
 import { ConfigModule } from '@nestjs/config';
 import { UserModule } from './users/user.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { TicketModule } from './ticket/ticket.module';
+import { QrcodeModule } from './qrcode/qrcode.module';
 
 @Module({
   imports: [
@@ -13,7 +15,9 @@ import { NotificationsModule } from './notifications/notifications.module';
     UserModule,
     AuthModule,
     EventsModule,
+    QrcodeModule,
     NotificationsModule,
+    TicketModule,
   ],
 })
 export class AppModule {}

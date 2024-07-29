@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { User } from './user.entity';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
@@ -25,7 +25,7 @@ export class UserService {
     }
   }
 
-  async findById(id: string): Promise<User | null> {
+  async findById(id: Types.ObjectId): Promise<User | null> {
     const user = await this.userModel.findById(id).exec();
     if (!user) {
       throw new NotFoundException(`User not found`);
