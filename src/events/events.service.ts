@@ -82,7 +82,10 @@ export class EventsService {
   }
 
   async findById(id: Types.ObjectId): Promise<Event> {
-    const event = await this.eventModel.findById(id).exec();
+    const event = await this.eventModel
+      .findById(id)
+      .populate('attendees')
+      .exec();
     if (!event) {
       throw new NotFoundException(`Event not found`);
     }
@@ -134,13 +137,18 @@ export class EventsService {
       throw new BadRequestException('User is already an attendee');
     }
     event.attendees.push(userId);
+    await event.save();
 
-    const { qrCode } = await this.ticketService.create(eventId, userId);
+    const ticket = await this.ticketService.create(eventId, userId);
+
     const user = await this.userService.findById(userId);
+    user.events.push(eventId);
+    await user.save();
+
     this.notificationsService.sendTicketNotification(
       user.email,
       event.title,
-      qrCode,
+      ticket.qrCode,
     );
 
     await this.notificationsService.createNotification({
@@ -151,8 +159,7 @@ export class EventsService {
       reminderDate: event.defaultReminderDate,
     });
 
-    await event.save();
-    return event;
+    return ticket;
   }
 
   async verifyQRCode(eventId: string, qrCode: string) {

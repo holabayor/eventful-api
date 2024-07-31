@@ -75,7 +75,8 @@ export class EventsController {
     @GetUser('id') userId: Types.ObjectId,
     @Param('id') eventId: Types.ObjectId,
   ) {
-    const event = await this.eventsService.addAttendee(userId, eventId);
-    return { message: 'Successful', event };
+    console.log('User id is ', userId);
+    const data = await this.eventsService.addAttendee(userId, eventId);
+    return { message: 'Successful, ticket sent to mail', data };
   }
 }

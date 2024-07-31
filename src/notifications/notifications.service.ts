@@ -5,7 +5,6 @@ import * as scheduler from 'node-schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Notification } from './notifications.entity';
-// import Handlebars from 'handlebars';
 
 @Injectable()
 export class NotificationsService {
@@ -18,8 +17,6 @@ export class NotificationsService {
   ) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
-      // host: this.config.get('MAIL_HOST'),
-      // port: this.config.get('MAIL_PORT'),
       secure: true,
       auth: {
         user: this.config.get('MAIL_USER'),
@@ -31,12 +28,25 @@ export class NotificationsService {
     });
   }
 
-  async sendMail(to: string, subject: string, html: string) {
+  async sendMail(
+    to: string,
+    subject: string,
+    html: string,
+    attachment?: string,
+  ) {
     const mailOptions = {
       from: this.config.get('MAIL_FROM'),
       to,
       subject,
       html,
+      attachments: [
+        {
+          filename: 'qrcode.png',
+          content: attachment,
+          encoding: 'base64',
+          cid: 'qrcode',
+        },
+      ],
     };
     try {
       return this.transporter.sendMail(mailOptions);
@@ -62,16 +72,15 @@ export class NotificationsService {
     eventTitle: string,
     qrCode: string,
   ): Promise<void> {
-    console.log('The qrcode is ', qrCode);
-    const base64Data = qrCode.split(',')[1];
     const subject = `Your Ticket for ${eventTitle}`;
-    // const template = Handlebars.compile();
     const html = `<p>Dear Attendee,</p>
-<p>You have successfully registered for ${eventTitle}.</p>
-<p> Here is your ticket:</p>
-<p><img src="${qrCode}" alt="QR Code" /></p>
-<p>Please present this QR code at the event for entry.</p>`;
-    this.sendMail(email, subject, html);
+    <p>You have successfully registered for ${eventTitle}.</p>
+    <p> Here is your ticket:</p>
+    <p><img src="cid:qrcode" alt="QR Code" /></p>
+    <p>Please present this QR code at the event for entry.</p>`;
+    const attachment = qrCode.split(',')[1];
+
+    this.sendMail(email, subject, html, attachment);
   }
 
   async createNotification(

@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
+import { Event } from 'src/events/events.entity';
 
 @Schema({
   toJSON: {
@@ -22,6 +23,9 @@ export class User extends Document {
 
   @Prop({ required: true, default: 'eventee', enum: ['creator', 'eventee'] })
   role: string;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: Event.name }] })
+  events: Types.ObjectId[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

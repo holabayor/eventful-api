@@ -8,13 +8,15 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  register(@Body() AuthDto: CreateUserDto) {
-    return this.authService.register(AuthDto);
+  async register(@Body() AuthDto: CreateUserDto) {
+    const data = await this.authService.register(AuthDto);
+    return { message: 'Signup successful', data };
   }
 
   @Post('login')
   @HttpCode(200)
-  login(@Body() AuthDto: LoginUserDto) {
-    return this.authService.login(AuthDto);
+  async login(@Body() AuthDto: LoginUserDto) {
+    const data = await this.authService.login(AuthDto);
+    return { message: 'Login successful', data };
   }
 }

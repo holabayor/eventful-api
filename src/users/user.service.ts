@@ -40,4 +40,12 @@ export class UserService {
     }
     return user;
   }
+
+  async getAppliedEvents(userId: Types.ObjectId): Promise<Event[]> {
+    const user = await this.userModel
+      .findById(userId)
+      .populate({ path: 'events', model: 'Event' })
+      .exec();
+    return user.events as unknown as Event[];
+  }
 }
