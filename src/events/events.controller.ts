@@ -15,6 +15,7 @@ import { JwtAuthGuard, RolesGuard } from '../auth/guard';
 import { GetUser, Roles } from '../auth/decorator';
 import { Role } from '../auth/guard/roles';
 import { Types } from 'mongoose';
+import { paramsIdDto } from 'src/common/dto';
 
 @Controller('events')
 export class EventsController {
@@ -38,8 +39,8 @@ export class EventsController {
   }
 
   @Get(':id')
-  async findById(@Param('id') id: Types.ObjectId) {
-    const event = await this.eventsService.findById(id);
+  async findById(@Param() params: paramsIdDto) {
+    const event = await this.eventsService.findById(params.id);
     return { message: 'Event retrieval successful', event };
   }
 
