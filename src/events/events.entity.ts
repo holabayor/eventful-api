@@ -1,6 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { User } from 'src/users/user.entity';
 
 @Schema({
   toJSON: {
@@ -26,10 +25,10 @@ export class Event extends Document {
   @Prop({ required: true, type: String })
   location: string;
 
-  @Prop({ type: Types.ObjectId, ref: User.name, required: true })
+  @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   creator: Types.ObjectId;
 
-  @Prop({ type: [{ type: Types.ObjectId, ref: User.name }] })
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
   attendees: Types.ObjectId[];
 
   @Prop({ type: String })
