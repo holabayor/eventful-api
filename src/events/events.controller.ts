@@ -17,11 +17,11 @@ import { Role } from '../auth/guard/roles';
 import { Types } from 'mongoose';
 
 @Controller('events')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Creator)
   async create(
     @GetUser('id') userId: Types.ObjectId,
@@ -44,6 +44,7 @@ export class EventsController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Creator)
   async update(
     @GetUser('id') userId: Types.ObjectId,
@@ -59,6 +60,7 @@ export class EventsController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Creator)
   @HttpCode(204)
   remove(
@@ -69,6 +71,7 @@ export class EventsController {
   }
 
   @Post(':id/attend')
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Eventee)
   @HttpCode(200)
   async addAttendee(
