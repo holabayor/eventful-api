@@ -36,6 +36,9 @@ export class Event extends Document {
 
   @Prop({ type: String })
   defaultReminderDate: string;
+
+  @Prop({ type: Date })
+  eventDateTime: Date;
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

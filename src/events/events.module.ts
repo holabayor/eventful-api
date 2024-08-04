@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
-import { EventsService } from './events.service';
-import { EventsController } from './events.controller';
 import { MongooseModule } from '@nestjs/mongoose';
-import { EventSchema } from './events.entity';
-import { UserModule } from 'src/users/user.module';
+import { RedisService } from 'src/common/redis/redis.service';
 import { NotificationsModule } from 'src/notifications/notifications.module';
-import { TicketModule } from 'src/ticket/ticket.module';
 import { QrcodeModule } from 'src/qrcode/qrcode.module';
+import { TicketModule } from 'src/ticket/ticket.module';
+import { UserModule } from 'src/users/user.module';
+import { EventsController } from './events.controller';
+import { EventSchema } from './events.entity';
+import { EventsService } from './events.service';
 
 @Module({
   imports: [
@@ -17,6 +18,6 @@ import { QrcodeModule } from 'src/qrcode/qrcode.module';
     QrcodeModule,
   ],
   controllers: [EventsController],
-  providers: [EventsService],
+  providers: [RedisService, EventsService],
 })
 export class EventsModule {}

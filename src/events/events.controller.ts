@@ -8,9 +8,10 @@ import {
   Delete,
   UseGuards,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { EventsService } from './events.service';
-import { CreateEventDto, UpdateEventDto } from './dto';
+import { CreateEventDto, QueryEventsDto, UpdateEventDto } from './dto';
 import { JwtAuthGuard, RolesGuard } from '../auth/guard';
 import { GetUser, Roles } from '../auth/decorator';
 import { Role } from '../auth/guard/roles';
@@ -33,9 +34,14 @@ export class EventsController {
   }
 
   @Get()
-  async findAll() {
-    const events = await this.eventsService.findAll();
-    return { message: 'Events retrieval successful', events };
+  async findAll(@Query() queryEventsDto: QueryEventsDto) {
+    const { events, metadata } =
+      await this.eventsService.findAll(queryEventsDto);
+    return {
+      message: 'Events retrieval successful',
+      events,
+      metadata,
+    };
   }
 
   @Get(':id')
@@ -49,12 +55,12 @@ export class EventsController {
   @Roles(Role.Creator)
   async update(
     @GetUser('id') userId: Types.ObjectId,
-    @Param('id') eventId: Types.ObjectId,
+    @Param() params: paramsIdDto,
     @Body() updateEventDto: UpdateEventDto,
   ) {
     const event = await this.eventsService.update(
       userId,
-      eventId,
+      params.id,
       updateEventDto,
     );
     return { message: 'Event update successful', event };
@@ -64,11 +70,8 @@ export class EventsController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Creator)
   @HttpCode(204)
-  remove(
-    @GetUser('id') userId: Types.ObjectId,
-    @Param('id') eventId: Types.ObjectId,
-  ) {
-    return this.eventsService.delete(userId, eventId);
+  remove(@GetUser('id') userId: Types.ObjectId, @Param() params: paramsIdDto) {
+    return this.eventsService.delete(userId, params.id);
   }
 
   @Post(':id/attend')
@@ -77,10 +80,9 @@ export class EventsController {
   @HttpCode(200)
   async addAttendee(
     @GetUser('id') userId: Types.ObjectId,
-    @Param('id') eventId: Types.ObjectId,
+    @Param() params: paramsIdDto,
   ) {
-    console.log('User id is ', userId);
-    const data = await this.eventsService.addAttendee(userId, eventId);
+    const data = await this.eventsService.addAttendee(userId, params.id);
     return { message: 'Successful, ticket sent to mail', data };
   }
 }

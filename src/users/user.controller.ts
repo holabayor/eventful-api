@@ -10,8 +10,9 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('me')
-  getUser(@GetUser('id') id: Types.ObjectId) {
-    return this.userService.findById(id);
+  async getUser(@GetUser('id') id: Types.ObjectId) {
+    const user = await this.userService.findById(id);
+    return { message: 'User retreival successful', user };
   }
 
   @Get('events')

@@ -1,9 +1,13 @@
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { AppModule } from './app.module';
+import { CombinedLogger } from './common/logger/combined.logger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.useLogger(app.get(CombinedLogger));
+  // app.useGlobalInterceptors(new LoggingInterceptor());
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
@@ -12,6 +16,13 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  const config = new DocumentBuilder()
+    .setTitle('Eventful API')
+    .setDescription('The Eventful API description')
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api-docs', app, document);
   await app.listen(3300);
 }
 bootstrap();
