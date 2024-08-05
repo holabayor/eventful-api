@@ -1,19 +1,11 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Param,
-  Delete,
-  UseGuards,
-} from '@nestjs/common';
-import { TicketService } from './ticket.service';
-import { CreateTicketDto } from './dto/create-ticket.dto';
-import { UpdateTicketDto } from './dto/update-ticket.dto';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
+import { GetUser, Roles } from 'src/auth/decorator';
 import { JwtAuthGuard, RolesGuard } from 'src/auth/guard';
-import { Roles } from 'src/auth/decorator';
 import { Role } from 'src/auth/guard/roles';
+import { TicketService } from './ticket.service';
 
+@ApiTags('Tickets')
 @Controller('tickets')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class TicketController {
@@ -28,6 +20,15 @@ export class TicketController {
   @Get('event/:eventId')
   @Roles(Role.Eventee)
   getTicketByEventandUser(
+    @GetUser('id') userId: string,
+    @Param('eventId') eventId: string,
+  ) {
+    return this.ticketService.getTicketByEventAndUser(eventId, userId);
+  }
+
+  @Get('events/:eventId')
+  @Roles(Role.Creator)
+  getEventTickets(
     @Param('eventId') eventId: string,
     @Param('userId') userId: string,
   ) {

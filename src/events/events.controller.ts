@@ -1,28 +1,42 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UseGuards,
+  Get,
   HttpCode,
+  Param,
+  Patch,
+  Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
-import { EventsService } from './events.service';
-import { CreateEventDto, QueryEventsDto, UpdateEventDto } from './dto';
-import { JwtAuthGuard, RolesGuard } from '../auth/guard';
-import { GetUser, Roles } from '../auth/decorator';
-import { Role } from '../auth/guard/roles';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { paramsIdDto } from 'src/common/dto';
+import { paramsIdDto } from 'src/common/dto/params-id.dto';
+import { GetUser, Roles } from '../auth/decorator';
+import { JwtAuthGuard, RolesGuard } from '../auth/guard';
+import { Role } from '../auth/guard/roles';
+import { CreateEventDto, QueryEventsDto, UpdateEventDto } from './dto';
+import { EventsService } from './events.service';
 
+@ApiBearerAuth()
+@ApiTags('Events')
 @Controller('events')
 export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Post()
+  @ApiOperation({ summary: 'Create an event' })
+  @ApiResponse({ status: 200, description: 'Event created' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Creator)
   async create(
@@ -34,6 +48,12 @@ export class EventsController {
   }
 
   @Get()
+  @ApiOperation({ summary: 'Events retrieval successful' })
+  @ApiResponse({ status: 200, description: 'Event created' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async findAll(@Query() queryEventsDto: QueryEventsDto) {
     const { events, metadata } =
       await this.eventsService.findAll(queryEventsDto);
@@ -45,12 +65,24 @@ export class EventsController {
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Event retrieval successful' })
+  @ApiResponse({ status: 200, description: 'Event created' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async findById(@Param() params: paramsIdDto) {
     const event = await this.eventsService.findById(params.id);
     return { message: 'Event retrieval successful', event };
   }
 
   @Patch(':id')
+  @ApiOperation({ summary: 'Update an event' })
+  @ApiResponse({ status: 200, description: 'Event update successful' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Creator)
   async update(
@@ -67,6 +99,12 @@ export class EventsController {
   }
 
   @Delete(':id')
+  @ApiOperation({ summary: 'Delete an event' })
+  @ApiResponse({ status: 204, description: 'Delete event' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Creator)
   @HttpCode(204)
@@ -75,6 +113,12 @@ export class EventsController {
   }
 
   @Post(':id/attend')
+  @ApiOperation({ summary: 'Register to attend an event' })
+  @ApiResponse({ status: 200, description: 'Successful, ticket sent to mail' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Eventee)
   @HttpCode(200)
@@ -85,4 +129,10 @@ export class EventsController {
     const data = await this.eventsService.addAttendee(userId, params.id);
     return { message: 'Successful, ticket sent to mail', data };
   }
+
+  @Get(':id/tickets')
+  @ApiOperation({ summary: 'View all tickets an event' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(Role.Creator)
+  async getEventTickets() {}
 }
