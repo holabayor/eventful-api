@@ -48,7 +48,7 @@ export class EventsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Events retrieval successful' })
+  @ApiOperation({ summary: 'Get all available events' })
   @ApiResponse({ status: 200, description: 'Event created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
@@ -65,7 +65,7 @@ export class EventsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Event retrieval successful' })
+  @ApiOperation({ summary: 'Get event by ID' })
   @ApiResponse({ status: 200, description: 'Event created' })
   @ApiResponse({ status: 400, description: 'Bad request' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })

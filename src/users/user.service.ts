@@ -4,9 +4,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { User } from './user.entity';
 import { Model, Types } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
+import { User } from './user.entity';
 
 @Injectable()
 export class UserService {
@@ -44,6 +44,14 @@ export class UserService {
   async getAppliedEvents(userId: Types.ObjectId): Promise<Event[]> {
     const user = await this.userModel
       .findById(userId)
+      .populate({ path: 'events', model: 'Event' })
+      .exec();
+    return user.events as unknown as Event[];
+  }
+
+  async getCreatorEvents(creatorId: Types.ObjectId): Promise<Event[]> {
+    const user = await this.userModel
+      .findById(creatorId)
       .populate({ path: 'events', model: 'Event' })
       .exec();
     return user.events as unknown as Event[];

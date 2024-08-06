@@ -138,6 +138,64 @@ export class EventsService {
     return data;
   }
 
+  async findCreatorEvents(
+    creatorId: Types.ObjectId,
+    queryEventsDto?: QueryEventsDto,
+  ): Promise<{
+    events: Event[];
+    metadata: {
+      page: number;
+      limit: number;
+      totalPages: number;
+      totalCount: number;
+      hasPreviousPage: boolean;
+      hasNextPage: boolean;
+    };
+  }> {
+    this.logger.log('Fetching events');
+    const query = {};
+
+    query['creator'] = creatorId;
+
+    if (queryEventsDto.title) {
+      query['title'] = { $regex: new RegExp(queryEventsDto.title, 'i') };
+    }
+
+    const order = queryEventsDto.sort === 'desc' ? -1 : 1;
+    const limit = queryEventsDto.limit || 10;
+    const page = queryEventsDto.page || 1;
+    const skip = (page - 1) * limit;
+
+    const cacheKey = `events:${JSON.stringify(queryEventsDto)}`;
+    const cachedEvents = await this.redisService.get(cacheKey);
+    if (cachedEvents) {
+      return cachedEvents;
+    }
+
+    const events = await this.eventModel
+      .find(query)
+      .populate('creator', 'name -_id')
+      .skip(skip)
+      .limit(limit)
+      .sort({ [queryEventsDto.sortBy]: order })
+      .exec();
+
+    const totalCount = await this.eventModel.countDocuments(query).exec();
+    const totalPages = Math.ceil(totalCount / limit);
+    const metadata = {
+      page: page,
+      limit: limit,
+      totalPages: totalPages,
+      totalCount: totalCount,
+      hasPreviousPage: page > 1,
+      hasNextPage: page < totalPages,
+    };
+
+    const data = { events, metadata };
+    await this.redisService.set(cacheKey, data);
+    return data;
+  }
+
   async findById(id: Types.ObjectId): Promise<Event> {
     const cacheKey = `event:${id}`;
     const cachedEvent = await this.redisService.get(cacheKey);

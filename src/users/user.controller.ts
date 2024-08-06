@@ -8,6 +8,7 @@ import {
 import { Types } from 'mongoose';
 import { GetUser } from 'src/auth/decorator';
 import { JwtAuthGuard } from 'src/auth/guard';
+import { EventsService } from 'src/events/events.service';
 import { UserService } from './user.service';
 
 @ApiBearerAuth()
@@ -15,7 +16,10 @@ import { UserService } from './user.service';
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly eventsService: EventsService,
+  ) {}
 
   @Get('me')
   @ApiOperation({ summary: 'Get current logged in user' })
@@ -35,6 +39,16 @@ export class UserController {
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async getAppliedEvents(@GetUser('id') userId: Types.ObjectId) {
     const events = await this.userService.getAppliedEvents(userId);
+    return { message: 'Successful retrieval', events };
+  }
+
+  @Get('created-events')
+  @ApiOperation({ summary: 'Get all events created for by current user' })
+  @ApiResponse({ status: 200, description: 'Successful retrieval' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  async getCreatorEvents(@GetUser('id') userId: Types.ObjectId) {
+    const events = await this.eventsService.findCreatorEvents(userId);
     return { message: 'Successful retrieval', events };
   }
 }
