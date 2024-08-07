@@ -1,8 +1,9 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Ticket } from './ticket.entity';
 import { Model, Types } from 'mongoose';
 import * as QRCode from 'qrcode';
+import { SystemMessages } from 'src/common/constants/system-messages';
+import { Ticket } from './ticket.entity';
 
 @Injectable()
 export class TicketService {
@@ -29,7 +30,7 @@ export class TicketService {
       .findOne({ event: eventId, user: userId })
       .exec();
     if (!ticket) {
-      throw new NotFoundException('Ticket not found');
+      throw new NotFoundException(SystemMessages.TICKET_NOT_FOUND);
     }
     return ticket;
   }

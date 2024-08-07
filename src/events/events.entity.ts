@@ -10,7 +10,7 @@ import { Document, Types } from 'mongoose';
   },
 })
 export class Event extends Document {
-  @Prop({ required: true, type: String, trim: true })
+  @Prop({ required: true, type: String, unique: true, trim: true })
   title: string;
 
   @Prop({ required: true, type: String })

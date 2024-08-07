@@ -16,6 +16,7 @@ import { UserModule } from './users/user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    LoggerModule,
     RedisModule.forRoot({
       type: 'single',
       url: process.env.REDIS_URL,
@@ -26,7 +27,6 @@ import { UserModule } from './users/user.module';
     EventsModule,
     QrcodeModule,
     NotificationsModule,
-    LoggerModule,
     TicketModule,
   ],
   providers: [

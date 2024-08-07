@@ -2,11 +2,15 @@ import {
   BadRequestException,
   ConflictException,
   ForbiddenException,
+  forwardRef,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
+import { SystemMessages } from 'src/common/constants/system-messages';
+import { FindAllResult } from 'src/common/interfaces';
 import { CombinedLogger } from 'src/common/logger/combined.logger';
 import { RedisService } from 'src/common/redis/redis.service';
 import { NotificationsService } from 'src/notifications/notifications.service';
@@ -22,6 +26,7 @@ export class EventsService {
     @InjectModel(Event.name) private eventModel: Model<Event>,
     private readonly logger: CombinedLogger,
     private readonly qrService: QRCodeService,
+    @Inject(forwardRef(() => UserService))
     private readonly userService: UserService,
     private readonly notificationsService: NotificationsService,
     private readonly ticketService: TicketService,
@@ -41,8 +46,8 @@ export class EventsService {
     creatorId: Types.ObjectId,
     createEventDto: CreateEventDto,
   ): Promise<Event> {
+    this.logger.log('Creating a new event');
     try {
-      console.log('Create event dto', createEventDto);
       // Combine date and time into a single Date object
       const eventDateTime = this.parseDateTime(
         createEventDto.date,
@@ -79,23 +84,13 @@ export class EventsService {
       return event;
     } catch (error) {
       if (error.code === 11000) {
-        throw new ConflictException('Event with same title already exists');
+        throw new ConflictException(SystemMessages.EVENT_DUPLICATE_TITLE);
       }
       throw error;
     }
   }
 
-  async findAll(queryEventsDto: QueryEventsDto): Promise<{
-    events: Event[];
-    metadata: {
-      page: number;
-      limit: number;
-      totalPages: number;
-      totalCount: number;
-      hasPreviousPage: boolean;
-      hasNextPage: boolean;
-    };
-  }> {
+  async findAll(queryEventsDto: QueryEventsDto): Promise<FindAllResult> {
     this.logger.log('Fetching events');
     const query = {};
 
@@ -109,8 +104,10 @@ export class EventsService {
     const skip = (page - 1) * limit;
 
     const cacheKey = `events:${JSON.stringify(queryEventsDto)}`;
+    await this.redisService.del(cacheKey);
     const cachedEvents = await this.redisService.get(cacheKey);
     if (cachedEvents) {
+      this.logger.log('All events fetched from cache');
       return cachedEvents;
     }
 
@@ -135,27 +132,17 @@ export class EventsService {
 
     const data = { events, metadata };
     await this.redisService.set(cacheKey, data);
+
+    this.logger.log('Events fetched from the database and cached');
     return data;
   }
 
   async findCreatorEvents(
     creatorId: Types.ObjectId,
     queryEventsDto?: QueryEventsDto,
-  ): Promise<{
-    events: Event[];
-    metadata: {
-      page: number;
-      limit: number;
-      totalPages: number;
-      totalCount: number;
-      hasPreviousPage: boolean;
-      hasNextPage: boolean;
-    };
-  }> {
-    this.logger.log('Fetching events');
-    const query = {};
-
-    query['creator'] = creatorId;
+  ): Promise<FindAllResult> {
+    this.logger.log('Fetching creator events');
+    const query = { creator: creatorId };
 
     if (queryEventsDto.title) {
       query['title'] = { $regex: new RegExp(queryEventsDto.title, 'i') };
@@ -166,9 +153,10 @@ export class EventsService {
     const page = queryEventsDto.page || 1;
     const skip = (page - 1) * limit;
 
-    const cacheKey = `events:${JSON.stringify(queryEventsDto)}`;
+    const cacheKey = `creatorEvents:${creatorId}:${JSON.stringify(queryEventsDto)}`;
     const cachedEvents = await this.redisService.get(cacheKey);
     if (cachedEvents) {
+      this.logger.log('Creator events fetched from cache');
       return cachedEvents;
     }
 
@@ -183,24 +171,28 @@ export class EventsService {
     const totalCount = await this.eventModel.countDocuments(query).exec();
     const totalPages = Math.ceil(totalCount / limit);
     const metadata = {
-      page: page,
-      limit: limit,
-      totalPages: totalPages,
-      totalCount: totalCount,
+      page,
+      limit,
+      totalPages,
+      totalCount,
       hasPreviousPage: page > 1,
       hasNextPage: page < totalPages,
     };
 
     const data = { events, metadata };
     await this.redisService.set(cacheKey, data);
+
+    this.logger.log('Creator events fetched from database and cached');
     return data;
   }
 
   async findById(id: Types.ObjectId): Promise<Event> {
+    this.logger.log(`Fetching event by id: ${id}`);
     const cacheKey = `event:${id}`;
     const cachedEvent = await this.redisService.get(cacheKey);
     // await this.redisService.del(cacheKey);
     if (cachedEvent) {
+      this.logger.log(`Event ${id} fetched from cache`);
       return cachedEvent;
     }
 
@@ -209,23 +201,25 @@ export class EventsService {
       .populate('attendees')
       .exec();
     if (!event) {
-      throw new NotFoundException(`Event not found`);
+      this.logger.warn(`Event ${id} not found`);
+      throw new NotFoundException(SystemMessages.EVENT_NOT_FOUND);
     }
 
-    this.logger.log(`Event ${id} found in the database`);
-
     await this.redisService.set(cacheKey, event);
+
+    this.logger.log(`Event ${id} found in the database`);
     return event;
   }
 
   async update(
-    userId: Types.ObjectId,
+    creatorId: Types.ObjectId,
     id: Types.ObjectId,
     updateEventDto: UpdateEventDto,
   ): Promise<Event> {
+    this.logger.log(`Updating event ${id} for user ${creatorId}`);
     const updatedEvent = await this.eventModel
       .findOneAndUpdate(
-        { id, creator: userId },
+        { id, creator: creatorId },
         { $set: updateEventDto },
         {
           new: true,
@@ -234,45 +228,53 @@ export class EventsService {
       .exec();
 
     if (!updatedEvent) {
-      throw new ForbiddenException('You are not authorized');
+      this.logger.warn(`Update forbidden for event ${id} by user ${creatorId}`);
+      throw new ForbiddenException(SystemMessages.FORBIDDEN);
     }
 
     await this.updateCache(id, updatedEvent);
+
+    this.logger.log(`Event ${id} updated successfully`);
     return updatedEvent;
   }
 
-  async delete(userId: Types.ObjectId, id: Types.ObjectId): Promise<boolean> {
+  async delete(
+    creatorId: Types.ObjectId,
+    id: Types.ObjectId,
+  ): Promise<boolean> {
+    this.logger.log(`Deleting event ${id} for user ${creatorId}`);
     const result = await this.eventModel
-      .findOneAndDelete({ id, creator: userId })
+      .findOneAndDelete({ id, creator: creatorId })
       .exec();
 
     if (!result) {
-      throw new ForbiddenException('You are not authorized');
+      this.logger.warn(`Delete forbidden for event ${id} by user ${creatorId}`);
+      throw new ForbiddenException(SystemMessages.FORBIDDEN);
     }
+
+    this.logger.log(`Event ${id} deleted successfully`);
     return !!result;
   }
 
   async addAttendee(userId: Types.ObjectId, eventId: Types.ObjectId) {
+    this.logger.log(`Adding attendee ${userId} to event ${eventId}`);
     const event = await this.eventModel.findById(eventId).exec();
 
     if (!event) {
-      throw new NotFoundException('Event not found');
+      this.logger.warn(`Event ${eventId} not found`);
+      throw new NotFoundException(SystemMessages.EVENT_NOT_FOUND);
     }
 
-    console.log(
-      `Today is ${new Date()} and event date is ${event.eventDateTime}./nIs date valid? ${new Date() > event.eventDateTime}`,
-    );
-
-    // Check if the event is in the past
     if (new Date() > event.eventDateTime) {
-      throw new BadRequestException(
-        'Cannot register for an event that has already passed',
-      );
+      this.logger.warn(`Attempt to join past event ${eventId}`);
+      throw new BadRequestException(SystemMessages.EVENT_PAST_EVENT);
     }
 
-    // Check if the user is already an attende
     if (event.attendees.includes(userId)) {
-      throw new BadRequestException('User is already an attendee');
+      this.logger.warn(
+        `User ${userId} already registered for event ${eventId}`,
+      );
+      throw new BadRequestException(SystemMessages.EVENT_ALREADY_REGISTERED);
     }
     event.attendees.push(userId);
     await event.save();
@@ -297,14 +299,18 @@ export class EventsService {
       reminderDate: event.defaultReminderDate,
     });
 
+    this.logger.log(
+      `Attendee ${userId} added to event ${eventId} successfully`,
+    );
     return ticket;
   }
 
   async verifyQRCode(eventId: string, qrCode: string) {
-    this.ticketService.verifyTicketQRCode(eventId, qrCode);
+    this.logger.log(`Verifying QR code for event ${eventId}`);
+    return await this.ticketService.verifyTicketQRCode(eventId, qrCode);
   }
 
   async updateCache(id: Types.ObjectId, event: Event) {
-    this.redisService.set(`event:${id}`, event, 3600);
+    this.redisService.set(`event:${id}`, event);
   }
 }

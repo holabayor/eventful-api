@@ -15,7 +15,7 @@ export class RedisService {
     return this.redisClient;
   }
 
-  async set(key: string, value: any, ttl: number = 3600): Promise<void> {
+  async set(key: string, value: any, ttl: number = 600): Promise<void> {
     if (ttl) {
       await this.redisClient.set(key, JSON.stringify(value), 'EX', ttl);
     } else {

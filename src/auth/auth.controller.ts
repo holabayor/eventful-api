@@ -1,5 +1,6 @@
 import { Body, Controller, HttpCode, Post } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { SystemMessages } from 'src/common/constants/system-messages';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { AuthService } from './auth.service';
 import { LoginUserDto } from './dto/auth.dto';
@@ -12,13 +13,13 @@ export class AuthController {
   @Post('register')
   async register(@Body() AuthDto: CreateUserDto) {
     const data = await this.authService.register(AuthDto);
-    return { message: 'Signup successful', data };
+    return { message: SystemMessages.AUTH_REGISTER_SUCCESS, data };
   }
 
   @Post('login')
   @HttpCode(200)
   async login(@Body() AuthDto: LoginUserDto) {
     const data = await this.authService.login(AuthDto);
-    return { message: 'Login successful', data };
+    return { message: SystemMessages.AUTH_LOGIN_SUCCESS, data };
   }
 }

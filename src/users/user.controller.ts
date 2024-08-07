@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -6,9 +6,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { GetUser } from 'src/auth/decorator';
+import { GetUser, Roles } from 'src/auth/decorator';
 import { JwtAuthGuard } from 'src/auth/guard';
-import { EventsService } from 'src/events/events.service';
+import { Role } from 'src/auth/guard/roles';
+import { SystemMessages } from 'src/common/constants/system-messages';
+import { QueryEventsDto } from 'src/events/dto';
 import { UserService } from './user.service';
 
 @ApiBearerAuth()
@@ -16,10 +18,7 @@ import { UserService } from './user.service';
 @Controller('users')
 @UseGuards(JwtAuthGuard)
 export class UserController {
-  constructor(
-    private readonly userService: UserService,
-    private readonly eventsService: EventsService,
-  ) {}
+  constructor(private readonly userService: UserService) {}
 
   @Get('me')
   @ApiOperation({ summary: 'Get current logged in user' })
@@ -29,7 +28,7 @@ export class UserController {
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   async getUser(@GetUser('id') id: Types.ObjectId) {
     const user = await this.userService.findById(id);
-    return { message: 'User retrieval successful', user };
+    return { message: SystemMessages.USER_RETRIEVE_SUCCESS, user };
   }
 
   @Get('events')
@@ -37,9 +36,19 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Successful retrieval' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async getAppliedEvents(@GetUser('id') userId: Types.ObjectId) {
-    const events = await this.userService.getAppliedEvents(userId);
-    return { message: 'Successful retrieval', events };
+  // @Roles(Role.Eventee)
+  async getAppliedEvents(
+    @GetUser('id') userId: Types.ObjectId,
+    @Query() queryEventsDto: QueryEventsDto,
+  ) {
+    const data = await this.userService.getAppliedEvents(
+      userId,
+      queryEventsDto,
+    );
+    const message = data.events.length
+      ? SystemMessages.EVENT_RETRIEVE_SUCCESS
+      : SystemMessages.EVENT_NOT_FOUND;
+    return { message, data };
   }
 
   @Get('created-events')
@@ -47,8 +56,18 @@ export class UserController {
   @ApiResponse({ status: 200, description: 'Successful retrieval' })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
-  async getCreatorEvents(@GetUser('id') userId: Types.ObjectId) {
-    const events = await this.eventsService.findCreatorEvents(userId);
-    return { message: 'Successful retrieval', events };
+  @Roles(Role.Creator)
+  async getCreatorEvents(
+    @GetUser('id') userId: Types.ObjectId,
+    @Query() queryEventsDto: QueryEventsDto,
+  ) {
+    const data = await this.userService.getCreatorEvents(
+      userId,
+      queryEventsDto,
+    );
+    const message = data.events.length
+      ? SystemMessages.EVENT_RETRIEVE_SUCCESS
+      : SystemMessages.EVENT_NOT_FOUND;
+    return { message, data };
   }
 }
