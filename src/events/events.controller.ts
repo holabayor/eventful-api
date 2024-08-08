@@ -136,5 +136,8 @@ export class EventsController {
   @ApiOperation({ summary: 'View all tickets an event' })
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(Role.Creator)
-  async getEventTickets() {}
+  async getEventTickets(@Param() params: paramsIdDto) {
+    const tickets = await this.eventsService.getEventTickets(params.id);
+    return { message: SystemMessages.TICKET_RETRIEVE_SUCCESS, tickets };
+  }
 }

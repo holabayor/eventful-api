@@ -75,7 +75,7 @@ export class EventsService {
       });
 
       // Create a QR code for the event
-      event.eventQrCode = await this.qrService.generateQRCode(
+      event.eventQrCode = await this.qrService.handleQRCode(
         `event:${event.id}`,
       );
       await event.save();
@@ -122,10 +122,10 @@ export class EventsService {
     const totalCount = await this.eventModel.countDocuments(query).exec();
     const totalPages = Math.ceil(totalCount / limit);
     const metadata = {
-      page: page,
-      limit: limit,
-      totalPages: totalPages,
-      totalCount: totalCount,
+      page,
+      limit,
+      totalPages,
+      totalCount,
       hasPreviousPage: page > 1,
       hasNextPage: page < totalPages,
     };
@@ -305,9 +305,13 @@ export class EventsService {
     return ticket;
   }
 
-  async verifyQRCode(eventId: string, qrCode: string) {
-    this.logger.log(`Verifying QR code for event ${eventId}`);
-    return await this.ticketService.verifyTicketQRCode(eventId, qrCode);
+  async getEventTickets(eventId: Types.ObjectId) {
+    return this.ticketService.getEventTickets(eventId);
+  }
+
+  async verifyQRCode(eventId: Types.ObjectId, qrCode: string) {
+    this.logger.log(`Verifying QR code for event ${eventId} and ${qrCode}`);
+    // return await this.ticketService.verifyTicketQRCode(eventId, qrCode);
   }
 
   async updateCache(id: Types.ObjectId, event: Event) {

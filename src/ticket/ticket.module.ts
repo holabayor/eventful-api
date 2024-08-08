@@ -1,12 +1,14 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { TicketService } from './ticket.service';
+import { QrcodeModule } from 'src/qrcode/qrcode.module';
 import { TicketController } from './ticket.controller';
 import { Ticket, TicketSchema } from './ticket.entity';
+import { TicketService } from './ticket.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Ticket.name, schema: TicketSchema }]),
+    QrcodeModule,
   ],
   providers: [TicketService],
   controllers: [TicketController],

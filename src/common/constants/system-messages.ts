@@ -37,6 +37,9 @@ export const SystemMessages = {
   TICKET_RETRIEVE_SUCCESS: 'Ticket retrieval successful',
   TICKET_SCAN_SUCCESS: 'Ticket scanned successfully',
   TICKET_NOT_FOUND: 'Ticket not found',
+  TICKET_ALREADY_EXISTS: 'Ticket already exists',
+  TICKET_ALREADY_SCANNED: 'Ticket has already been scanned',
+  TICKET_ALREADY_CANCELLED: 'Ticket has already been cancelled',
 
   NOTIFICATION_SENT_SUCCESS: 'Notification sent successfully',
   NOTIFICATION_RETRIEVE_SUCCESS: 'Notifications retrieved successfully',

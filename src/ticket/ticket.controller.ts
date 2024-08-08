@@ -1,8 +1,10 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Types } from 'mongoose';
 import { GetUser, Roles } from 'src/auth/decorator';
 import { JwtAuthGuard, RolesGuard } from 'src/auth/guard';
 import { Role } from 'src/auth/guard/roles';
+import { SystemMessages } from 'src/common/constants/system-messages';
 import { TicketService } from './ticket.service';
 
 @ApiTags('Tickets')
@@ -11,33 +13,33 @@ import { TicketService } from './ticket.service';
 export class TicketController {
   constructor(private readonly ticketService: TicketService) {}
 
-  @Post()
-  @Roles(Role.Creator)
-  createTicket() {
-    // return this.ticketService.create(eventId: stringify, user);
-  }
-
   @Get('event/:eventId')
   @Roles(Role.Eventee)
-  getTicketByEventandUser(
-    @GetUser('id') userId: string,
-    @Param('eventId') eventId: string,
+  async getTicketByEventandUser(
+    @GetUser('id') userId: Types.ObjectId,
+    @Param('eventId') eventId: Types.ObjectId,
   ) {
-    return this.ticketService.getTicketByEventAndUser(eventId, userId);
+    const ticket = await this.ticketService.getTicketByEventAndUser(
+      eventId,
+      userId,
+    );
+    return { message: SystemMessages.TICKET_RETRIEVE_SUCCESS, ticket };
   }
 
   @Get('events/:eventId')
   @Roles(Role.Creator)
-  getEventTickets(
-    @Param('eventId') eventId: string,
-    @Param('userId') userId: string,
-  ) {
-    return this.ticketService.getTicketByEventAndUser(eventId, userId);
+  async getEventTickets(@Param('eventId') eventId: Types.ObjectId) {
+    const tickets = await this.ticketService.getEventTickets(eventId);
+    return { message: SystemMessages.TICKET_RETRIEVE_SUCCESS, tickets };
   }
 
-  @Get('event/:eventId/verify')
+  @Patch('events/:eventId/scan')
   @Roles(Role.Creator)
-  verifyTicket(@Param('eventId') eventId: string, @Body() qrCode: string) {
-    return this.ticketService.verifyTicketQRCode(eventId, qrCode);
+  async verifyTicket(
+    @Param('eventId') eventId: Types.ObjectId,
+    @Body() userId: Types.ObjectId,
+  ) {
+    await this.ticketService.verifyTicketQRCode(eventId, userId);
+    return { message: SystemMessages.TICKET_SCAN_SUCCESS };
   }
 }

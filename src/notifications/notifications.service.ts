@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import * as nodemailer from 'nodemailer';
-import * as scheduler from 'node-schedule';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import * as scheduler from 'node-schedule';
+import * as nodemailer from 'nodemailer';
 import { Notification } from './notifications.entity';
 
 @Injectable()
@@ -28,25 +28,12 @@ export class NotificationsService {
     });
   }
 
-  async sendMail(
-    to: string,
-    subject: string,
-    html: string,
-    attachment?: string,
-  ) {
+  async sendMail(to: string, subject: string, html: string) {
     const mailOptions = {
       from: this.config.get('MAIL_FROM'),
       to,
       subject,
       html,
-      attachments: [
-        {
-          filename: 'qrcode.png',
-          content: attachment,
-          encoding: 'base64',
-          cid: 'qrcode',
-        },
-      ],
     };
     try {
       return this.transporter.sendMail(mailOptions);
@@ -76,11 +63,10 @@ export class NotificationsService {
     const html = `<p>Dear Attendee,</p>
     <p>You have successfully registered for ${eventTitle}.</p>
     <p> Here is your ticket:</p>
-    <p><img src="cid:qrcode" alt="QR Code" /></p>
+    <p><img src=${qrCode} alt="QR Code" /></p>
     <p>Please present this QR code at the event for entry.</p>`;
-    const attachment = qrCode.split(',')[1];
 
-    this.sendMail(email, subject, html, attachment);
+    this.sendMail(email, subject, html);
   }
 
   async createNotification(
