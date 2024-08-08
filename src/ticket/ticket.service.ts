@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -17,15 +18,27 @@ export class TicketService {
     private readonly qrService: QRCodeService,
   ) {}
 
-  async create(eventId: Types.ObjectId, userId: Types.ObjectId) {
-    const qrCode = await QRCode.toDataURL(`${eventId}-${userId}`);
-    const uploadImage = await this.qrService.uploadToCloudinary(qrCode);
+  async findTicketById(ticketId: Types.ObjectId) {
+    const ticket = await this.ticketModel
+      .findById(ticketId)
+      .populate('event', '-_id title')
+      .exec();
+    if (!ticket) {
+      throw new NotFoundException(SystemMessages.TICKET_NOT_FOUND);
+    }
+    return ticket;
+  }
 
+  async create(eventId: Types.ObjectId, userId: Types.ObjectId) {
     const ticket = new this.ticketModel({
       event: eventId,
       user: userId,
-      qrCode: uploadImage.secure_url,
     });
+
+    const qrCode = await QRCode.toDataURL(`ticket:-${ticket._id}`);
+    const uploadImage = await this.qrService.uploadToCloudinary(qrCode);
+
+    ticket.qrCode = uploadImage.secure_url;
 
     await ticket.save();
     return ticket;
@@ -53,20 +66,25 @@ export class TicketService {
   }
 
   async verifyTicketQRCode(
-    eventId: Types.ObjectId,
-    userId: Types.ObjectId,
+    ticketId: Types.ObjectId,
   ): Promise<{ valid: boolean }> {
-    const ticket = await this.ticketModel
-      .findOne({ event: eventId, user: userId })
-      .exec();
+    const ticket = await this.ticketModel.findById(ticketId).exec();
     console.log(ticket);
     return { valid: !!ticket };
   }
 
-  async scanTicket(qrCode: string) {
-    const ticket = await this.ticketModel.findOne({ qrCode }).exec();
+  async scanTicket(userId: Types.ObjectId, ticketId: Types.ObjectId) {
+    const ticket = await this.ticketModel
+      .findById(ticketId)
+      .populate('event')
+      .exec();
+
     if (!ticket) {
       throw new NotFoundException(SystemMessages.TICKET_NOT_FOUND);
+    }
+
+    if ((ticket.event as any).creator !== userId) {
+      throw new ForbiddenException(SystemMessages.EVENT_NOT_CREATOR);
     }
 
     if (ticket.status === TicketStatus.SCANNED) {
@@ -74,7 +92,7 @@ export class TicketService {
     }
 
     if (ticket.status === TicketStatus.CANCELLED) {
-      throw new BadRequestException(SystemMessages.TICKET_ALREADY_CANCELLED);
+      throw new BadRequestException(SystemMessages.TICKET_INVALID);
     }
 
     ticket.status = TicketStatus.SCANNED;
@@ -83,21 +101,24 @@ export class TicketService {
     return ticket;
   }
 
-  async cancelTicket(qrCode: string) {
-    const ticket = await this.ticketModel.findOne({ qrCode }).exec();
+  async cancelTicket(userId: Types.ObjectId, ticketId: Types.ObjectId) {
+    const ticket = await this.ticketModel
+      .findById(ticketId)
+      .populate('event')
+      .exec();
     if (!ticket) {
       throw new NotFoundException(SystemMessages.TICKET_NOT_FOUND);
+    }
+
+    if ((ticket.event as any).creator !== userId && ticket.user !== userId) {
+      throw new ForbiddenException(SystemMessages.EVENT_NOT_CREATOR);
     }
 
     if (ticket.status === TicketStatus.CANCELLED) {
       throw new BadRequestException(SystemMessages.TICKET_ALREADY_CANCELLED);
     }
 
-    if (ticket.status === TicketStatus.SCANNED) {
-      throw new BadRequestException(SystemMessages.TICKET_ALREADY_SCANNED);
-    }
-
-    ticket.status = TicketStatus.SCANNED;
+    ticket.status = TicketStatus.CANCELLED;
     await ticket.save();
 
     return ticket;

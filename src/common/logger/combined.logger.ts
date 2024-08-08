@@ -13,7 +13,7 @@ export class CombinedLogger extends ConsoleLogger implements LoggerService {
 
   error(message: string, trace: string, context?: string) {
     this.winstonLogger.error(message, trace, context);
-    super.error(message, trace, context);
+    super.error(message, '', context);
   }
 
   warn(message: string, context?: string) {

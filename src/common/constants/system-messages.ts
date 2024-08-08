@@ -25,6 +25,7 @@ export const SystemMessages = {
   EVENT_NOT_FOUND: 'Event not found',
   EVENT_PAST_EVENT: 'Cannot register for an event that has already passed',
   EVENT_ALREADY_REGISTERED: 'You are already registered for this event',
+  EVENT_NOT_CREATOR: 'You are not the creator of this event',
 
   AUTH_LOGIN_SUCCESS: 'Login successful',
   AUTH_LOGOUT_SUCCESS: 'Logout successful',
@@ -36,6 +37,8 @@ export const SystemMessages = {
 
   TICKET_RETRIEVE_SUCCESS: 'Ticket retrieval successful',
   TICKET_SCAN_SUCCESS: 'Ticket scanned successfully',
+  TICKET_CANCEL_SUCCESS: 'Ticket cancelled successfully',
+  TICKET_INVALID: 'Ticket is no longer valid',
   TICKET_NOT_FOUND: 'Ticket not found',
   TICKET_ALREADY_EXISTS: 'Ticket already exists',
   TICKET_ALREADY_SCANNED: 'Ticket has already been scanned',
