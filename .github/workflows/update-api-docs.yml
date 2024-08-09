@@ -10,16 +10,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
-      uses: actions/checkout@v2
+      - name: Checkout Repository
+        uses: actions/checkout@v3
 
-    - name: Download the Latest API Specification from Stoplight
-      run: curl -o docs/openapi.yaml https://eventful-api.stoplight.io/docs/eventful/702712f52dede-eventful-api
+      - name: Set Node.js 20
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.x'
 
-    - name: Commit and Push if Changed
-      run: |
-        git config --global user.email "action@github.com"
-        git config --global user.name "GitHub Action"
-        git add docs/openapi.yaml
-        git commit -m "Update OpenAPI documentation" || echo "No changes to commit"
-        git push
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Download the Latest API Specification from Stoplight
+        run: curl -o docs/openapi.yaml https://eventful-api.stoplight.io/docs/eventful/702712f52dede-eventful-api
+
+      - name: Commit and Push if Changed
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add docs/openapi.yaml
+          git commit -m "Update OpenAPI documentation" || echo "No changes to commit"
+          git push
