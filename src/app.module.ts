@@ -4,6 +4,7 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import { AuthModule } from './auth/auth.module';
+import { CategoryModule } from './categories/categories.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { LoggerModule } from './common/logger/logger.module';
@@ -22,6 +23,7 @@ import { UserModule } from './users/user.module';
       url: process.env.REDIS_URL,
     }),
     MongooseModule.forRoot(process.env.MONGODB_URI),
+    CategoryModule,
     UserModule,
     AuthModule,
     EventsModule,

@@ -108,7 +108,7 @@ export class EventsController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Creator)
+  // @Roles(Role.Creator)
   @HttpCode(204)
   remove(@GetUser('id') userId: Types.ObjectId, @Param() params: paramsIdDto) {
     return this.eventsService.delete(userId, params.id);
@@ -122,7 +122,7 @@ export class EventsController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(Role.Eventee)
+  // @Roles(Role.Eventee)
   @HttpCode(200)
   async addAttendee(
     @GetUser('id') userId: Types.ObjectId,

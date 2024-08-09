@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import { Document, Query, Types } from 'mongoose';
 
 @Schema({
   toJSON: {
@@ -28,6 +28,9 @@ export class Event extends Document {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   creator: Types.ObjectId;
 
+  @Prop({ type: Types.ObjectId, ref: 'Category', required: true })
+  category: Types.ObjectId[];
+
   @Prop({ type: [{ type: Types.ObjectId, ref: 'User' }] })
   attendees: Types.ObjectId[];
 
@@ -42,3 +45,8 @@ export class Event extends Document {
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);
+
+EventSchema.pre<Query<any, Event>>(/^find/, function (next) {
+  this.populate('creator', 'name').populate('category');
+  next();
+});

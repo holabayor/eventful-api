@@ -113,7 +113,6 @@ export class EventsService {
 
     const events = await this.eventModel
       .find(query)
-      .populate('creator', 'name -_id')
       .skip(skip)
       .limit(limit)
       .sort({ [queryEventsDto.sortBy]: order })
@@ -162,7 +161,6 @@ export class EventsService {
 
     const events = await this.eventModel
       .find(query)
-      .populate('creator', 'name -_id')
       .skip(skip)
       .limit(limit)
       .sort({ [queryEventsDto.sortBy]: order })
@@ -212,14 +210,15 @@ export class EventsService {
   }
 
   async update(
-    creatorId: Types.ObjectId,
+    userId: Types.ObjectId,
     id: Types.ObjectId,
     updateEventDto: UpdateEventDto,
   ): Promise<Event> {
-    this.logger.log(`Updating event ${id} for user ${creatorId}`);
+    this.logger.log(`Updating event ${id} for user ${userId}`);
+
     const updatedEvent = await this.eventModel
       .findOneAndUpdate(
-        { id, creator: creatorId },
+        { _id: id, creator: userId },
         { $set: updateEventDto },
         {
           new: true,
@@ -228,7 +227,7 @@ export class EventsService {
       .exec();
 
     if (!updatedEvent) {
-      this.logger.warn(`Update forbidden for event ${id} by user ${creatorId}`);
+      this.logger.warn(`Update forbidden for event ${id} by user ${userId}`);
       throw new ForbiddenException(SystemMessages.FORBIDDEN);
     }
 
@@ -238,21 +237,26 @@ export class EventsService {
     return updatedEvent;
   }
 
-  async delete(
-    creatorId: Types.ObjectId,
-    id: Types.ObjectId,
-  ): Promise<boolean> {
-    this.logger.log(`Deleting event ${id} for user ${creatorId}`);
-    const result = await this.eventModel
-      .findOneAndDelete({ id, creator: creatorId })
-      .exec();
+  async delete(userId: Types.ObjectId, id: Types.ObjectId): Promise<boolean> {
+    this.logger.log(`Attemptiing to delete event ${id} by user ${userId}`);
 
-    if (!result) {
-      this.logger.warn(`Delete forbidden for event ${id} by user ${creatorId}`);
+    const event = await this.eventModel.findById(id).exec();
+
+    if (!event) {
+      this.logger.warn(`Event ${id} not found`);
+      throw new NotFoundException(SystemMessages.EVENT_NOT_FOUND);
+    }
+
+    console.log('Equals = ', event.creator.equals(userId));
+
+    if (!event.creator.equals(userId)) {
+      this.logger.warn(`Delete forbidden for event ${id} by user ${userId}`);
       throw new ForbiddenException(SystemMessages.FORBIDDEN);
     }
 
-    this.logger.log(`Event ${id} deleted successfully`);
+    const result = await this.eventModel.deleteOne({ _id: id }).exec();
+
+    this.logger.log(`Event ${userId} deleted successfully`);
     return !!result;
   }
 
@@ -270,6 +274,11 @@ export class EventsService {
       throw new BadRequestException(SystemMessages.EVENT_PAST_EVENT);
     }
 
+    if (event.creator.equals(userId)) {
+      this.logger.warn(`User ${userId} is the creator of event ${eventId}`);
+      throw new BadRequestException(SystemMessages.EVENT_CANNOT_REGISTER);
+    }
+
     if (event.attendees.includes(userId)) {
       this.logger.warn(
         `User ${userId} already registered for event ${eventId}`,
@@ -279,7 +288,9 @@ export class EventsService {
     event.attendees.push(userId);
     await event.save();
 
-    const ticket = await this.ticketService.create(eventId, userId);
+    const ticket = await (
+      await this.ticketService.create(eventId, userId)
+    ).populate('event');
 
     const user = await this.userService.findById(userId);
     user.events.push(eventId);

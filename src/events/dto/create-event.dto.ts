@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsString,
 } from 'class-validator';
+import { Types } from 'mongoose';
 import { IsFutureDate, IsValidTime } from 'src/common/validators';
 
 export class CreateEventDto {
@@ -14,6 +15,9 @@ export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
   readonly description: string;
+
+  @IsNotEmpty()
+  readonly category: Types.ObjectId;
 
   @IsDateString()
   @IsFutureDate()

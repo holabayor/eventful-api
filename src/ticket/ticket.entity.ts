@@ -9,7 +9,14 @@ export enum TicketStatus {
   CANCELLED = 'cancelled',
 }
 
-@Schema()
+@Schema({
+  toJSON: {
+    transform(doc, ret) {
+      delete ret.__v;
+      return ret;
+    },
+  },
+})
 export class Ticket extends Document {
   @Prop({ type: Types.ObjectId, ref: Event.name })
   event: Types.ObjectId;

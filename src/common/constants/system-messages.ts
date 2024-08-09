@@ -24,6 +24,7 @@ export const SystemMessages = {
   EVENT_DUPLICATE_TITLE: 'Event with the same title already exists',
   EVENT_NOT_FOUND: 'Event not found',
   EVENT_PAST_EVENT: 'Cannot register for an event that has already passed',
+  EVENT_CANNOT_REGISTER: 'Sorry! You cannot register for an event you created',
   EVENT_ALREADY_REGISTERED: 'You are already registered for this event',
   EVENT_NOT_CREATOR: 'You are not the creator of this event',
 
@@ -47,4 +48,10 @@ export const SystemMessages = {
   NOTIFICATION_SENT_SUCCESS: 'Notification sent successfully',
   NOTIFICATION_RETRIEVE_SUCCESS: 'Notifications retrieved successfully',
   NOTIFICATION_NOT_FOUND: 'Notification not found',
+
+  CATEGORY_ALREADY_EXIST: 'Category already exists',
+  CATEGORY_NOT_FOUND: 'Category not found',
+  CATEGORY_CREATE_SUCCESS: 'Category created successfully',
+  CATEGORY_RETRIEVE_SUCCESS: 'Category retrieval successful',
+  CATEGORY_UPDATE_SUCCESS: 'Category updated successfully',
 };

@@ -50,6 +50,7 @@ export class TicketService {
   ): Promise<Ticket> {
     const ticket = await this.ticketModel
       .findOne({ event: eventId, user: userId })
+      .populate('event', '-_id title')
       .exec();
     if (!ticket) {
       throw new NotFoundException(SystemMessages.TICKET_NOT_FOUND);
@@ -58,7 +59,10 @@ export class TicketService {
   }
 
   async getEventTickets(eventId: Types.ObjectId): Promise<Ticket[]> {
-    const tickets = await this.ticketModel.find({ event: eventId }).exec();
+    const tickets = await this.ticketModel
+      .find({ event: eventId })
+      .populate('event')
+      .exec();
     if (!tickets) {
       throw new NotFoundException(SystemMessages.TICKET_NOT_FOUND);
     }
@@ -104,7 +108,7 @@ export class TicketService {
   async cancelTicket(userId: Types.ObjectId, ticketId: Types.ObjectId) {
     const ticket = await this.ticketModel
       .findById(ticketId)
-      .populate('event')
+      .populate('event', '-_id title')
       .exec();
     if (!ticket) {
       throw new NotFoundException(SystemMessages.TICKET_NOT_FOUND);
