@@ -7,12 +7,12 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { SystemMessages } from 'src/common/constants/system-messages';
-import { FindAllResult } from 'src/common/interfaces';
-import { RedisService } from 'src/common/redis/redis.service';
-import { QueryEventsDto } from 'src/events/dto';
-import { Event } from 'src/events/events.entity';
-import { EventsService } from 'src/events/events.service';
+import { SystemMessages } from '../common/constants/system-messages';
+import { FindAllResult } from '../common/interfaces';
+import { RedisService } from '../common/redis/redis.service';
+import { QueryEventsDto } from '../events/dto';
+import { Event } from '../events/events.entity';
+import { EventsService } from '../events/events.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './user.entity';
 

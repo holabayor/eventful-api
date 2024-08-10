@@ -17,11 +17,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { SystemMessages } from 'src/common/constants/system-messages';
-import { paramsIdDto } from 'src/common/dto/params-id.dto';
 import { GetUser, Roles } from '../auth/decorator';
 import { JwtAuthGuard, RolesGuard } from '../auth/guard';
 import { Role } from '../auth/guard/roles';
+import { SystemMessages } from '../common/constants/system-messages';
+import { paramsIdDto } from '../common/dto/params-id.dto';
 import { CreateEventDto, QueryEventsDto, UpdateEventDto } from './dto';
 import { EventsService } from './events.service';
 

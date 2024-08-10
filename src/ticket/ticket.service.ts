@@ -7,8 +7,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import * as QRCode from 'qrcode';
-import { SystemMessages } from 'src/common/constants/system-messages';
-import { QRCodeService } from 'src/qrcode/qrcode.service';
+import { SystemMessages } from '../common/constants/system-messages';
+import { QRCodeService } from '../qrcode/qrcode.service';
 import { Ticket, TicketStatus } from './ticket.entity';
 
 @Injectable()

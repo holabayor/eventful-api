@@ -1,10 +1,10 @@
 import { Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { GetUser, Roles } from 'src/auth/decorator';
-import { JwtAuthGuard, RolesGuard } from 'src/auth/guard';
-import { Role } from 'src/auth/guard/roles';
-import { SystemMessages } from 'src/common/constants/system-messages';
+import { GetUser, Roles } from '../auth/decorator';
+import { JwtAuthGuard, RolesGuard } from '../auth/guard';
+import { Role } from '../auth/guard/roles';
+import { SystemMessages } from '../common/constants/system-messages';
 import { TicketService } from './ticket.service';
 
 @ApiTags('Tickets')

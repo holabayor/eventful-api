@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { QrcodeModule } from 'src/qrcode/qrcode.module';
+import { QrcodeModule } from '../qrcode/qrcode.module';
 import { TicketController } from './ticket.controller';
 import { Ticket, TicketSchema } from './ticket.entity';
 import { TicketService } from './ticket.service';

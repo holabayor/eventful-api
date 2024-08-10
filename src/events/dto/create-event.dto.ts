@@ -5,7 +5,7 @@ import {
   IsString,
 } from 'class-validator';
 import { Types } from 'mongoose';
-import { IsFutureDate, IsValidTime } from 'src/common/validators';
+import { IsFutureDate, IsValidTime } from '../../common/validators';
 
 export class CreateEventDto {
   @IsString()
@@ -22,7 +22,7 @@ export class CreateEventDto {
   @IsDateString()
   @IsFutureDate()
   @IsNotEmpty({ message: 'Date must be in the YYYY-MM-DD format' })
-  readonly date: Date;
+  readonly date: string;
 
   @IsString()
   @IsValidTime()

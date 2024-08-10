@@ -9,14 +9,14 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { SystemMessages } from 'src/common/constants/system-messages';
-import { FindAllResult } from 'src/common/interfaces';
-import { CombinedLogger } from 'src/common/logger/combined.logger';
-import { RedisService } from 'src/common/redis/redis.service';
-import { NotificationsService } from 'src/notifications/notifications.service';
-import { QRCodeService } from 'src/qrcode/qrcode.service';
-import { TicketService } from 'src/ticket/ticket.service';
-import { UserService } from 'src/users/user.service';
+import { SystemMessages } from '../common/constants/system-messages';
+import { FindAllResult } from '../common/interfaces';
+import { CombinedLogger } from '../common/logger/combined.logger';
+import { RedisService } from '../common/redis/redis.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { QRCodeService } from '../qrcode/qrcode.service';
+import { TicketService } from '../ticket/ticket.service';
+import { UserService } from '../users/user.service';
 import { CreateEventDto, QueryEventsDto, UpdateEventDto } from './dto';
 import { Event } from './events.entity';
 
@@ -68,7 +68,7 @@ export class EventsService {
         createEventDto.defaultReminderDate = defaultReminderDate.toISOString();
       }
 
-      const event = new this.eventModel({
+      const event = await this.eventModel.create({
         ...createEventDto,
         creator: creatorId,
         eventDateTime,

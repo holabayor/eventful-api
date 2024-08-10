@@ -10,11 +10,11 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse } from '@nestjs/swagger';
-// import { Roles } from 'src/auth/decorator';
-import { JwtAuthGuard, RolesGuard } from 'src/auth/guard';
-// import { Role } from 'src/auth/guard/roles';
-import { SystemMessages } from 'src/common/constants/system-messages';
-import { paramsIdDto } from 'src/common/dto/params-id.dto';
+// import { Roles } from '../auth/decorator';
+import { JwtAuthGuard, RolesGuard } from '../auth/guard';
+// import { Role } from '../auth/guard/roles';
+import { SystemMessages } from '../common/constants/system-messages';
+import { paramsIdDto } from '../common/dto/params-id.dto';
 import { CategoryService } from './categories.service';
 import { CategoryDto } from './dto/category.dto';
 

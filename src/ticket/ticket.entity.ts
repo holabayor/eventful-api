@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Event } from 'src/events/events.entity';
-import { User } from 'src/users/user.entity';
+import { Event } from '../events/events.entity';
+import { User } from '../users/user.entity';
 
 export enum TicketStatus {
   PURCHASED = 'purchased',

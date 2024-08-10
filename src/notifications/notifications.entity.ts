@@ -1,6 +1,6 @@
-import { Document, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { User } from 'src/users/user.entity';
+import { Document, Types } from 'mongoose';
+import { User } from '../users/user.entity';
 
 @Schema({
   toJSON: {

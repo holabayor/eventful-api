@@ -1,4 +1,4 @@
-import { Event } from 'src/events/events.entity';
+import { Event } from '../../events/events.entity';
 
 interface Metadata {
   page: number;

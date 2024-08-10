@@ -6,11 +6,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Types } from 'mongoose';
-import { GetUser, Roles } from 'src/auth/decorator';
-import { JwtAuthGuard } from 'src/auth/guard';
-import { Role } from 'src/auth/guard/roles';
-import { SystemMessages } from 'src/common/constants/system-messages';
-import { QueryEventsDto } from 'src/events/dto';
+import { GetUser, Roles } from '../auth/decorator';
+import { JwtAuthGuard } from '../auth/guard';
+import { Role } from '../auth/guard/roles';
+import { SystemMessages } from '../common/constants/system-messages';
+import { QueryEventsDto } from '../events/dto';
 import { UserService } from './user.service';
 
 @ApiBearerAuth()

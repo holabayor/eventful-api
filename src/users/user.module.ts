@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RedisService } from 'src/common/redis/redis.service';
-import { EventsModule } from 'src/events/events.module';
+import { RedisService } from '../common/redis/redis.service';
+import { EventsModule } from '../events/events.module';
 import { UserController } from './user.controller';
 import { User, UserSchema } from './user.entity';
 import { UserService } from './user.service';

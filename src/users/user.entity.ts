@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
-import { Event } from 'src/events/events.entity';
+import { Event } from '../events/events.entity';
 
 @Schema({
   toJSON: {
