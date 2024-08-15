@@ -45,6 +45,9 @@ export class Event extends Document {
 
   @Prop({ type: Date })
   eventDateTime: Date;
+
+  @Prop({ type: String })
+  additionalDetails: string;
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

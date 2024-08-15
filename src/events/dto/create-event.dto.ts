@@ -38,4 +38,8 @@ export class CreateEventDto {
   @IsDateString()
   @IsOptional()
   defaultReminderDate?: string;
+
+  @IsString()
+  @IsOptional()
+  readonly additionalDetails: string;
 }
