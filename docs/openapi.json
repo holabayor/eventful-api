@@ -1,0 +1,1695 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Eventful API",
+    "description": "**API documentation for the Eventful - An event managment application.**",
+    "termsOfService": "",
+    "contact": {
+      "name": "Liasu Aanuoluwapo",
+      "email": "liasu.olabayo@gmail.com",
+      "url": "https://github.com/holabayor"
+    },
+    "license": {
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html",
+      "name": "Apache 2.0"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3300",
+      "description": "Development Server"
+    },
+    {
+      "url": "https://eventful-api-nxu6.onrender.com",
+      "description": "Staging Server"
+    }
+  ],
+  "paths": {
+    "/api/auth/register": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Register a user",
+        "description": "Registers a new user",
+        "operationId": "registerUser",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/RegisterUser"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/RegisterUser-OK-Response"
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          }
+        },
+        "security": [],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "tags": ["Authentication"],
+        "summary": "Login a user",
+        "description": "Creator Login",
+        "operationId": "loginUser",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/LoginUser"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Login-OK-Response"
+          }
+        },
+        "security": [],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/users/me": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get current logged in user",
+        "description": "Get current logged in user",
+        "operationId": "getUser",
+        "responses": {
+          "200": {
+            "description": "User retrieval successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  },
+                  "x-examples": {
+                    "Example 1": {
+                      "message": "User retrieval successful"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/users/events": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get all events registered for by current user",
+        "description": "Get all events registered for by current user",
+        "operationId": "getAppliedEvents",
+        "parameters": [
+          {
+            "name": "title",
+            "in": "query",
+            "description": "Title of the event",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "date",
+            "in": "query",
+            "description": "Date of the event",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful retrieval"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/users/created-events": {
+      "get": {
+        "tags": ["User"],
+        "summary": "Get all events created by current user (CREATOR)",
+        "description": "Get all events created by current user (CREATOR)",
+        "operationId": "getCreatorEvents",
+        "responses": {
+          "200": {
+            "description": "Successful retrieval"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/events": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get all events",
+        "description": "Get all Events",
+        "operationId": "getAllEvents",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Get-All-Events"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      },
+      "post": {
+        "tags": ["Events"],
+        "summary": "Create an Event (CREATOR)",
+        "description": "Create an Event (CREATOR)",
+        "operationId": "createEvent",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/CreateEvent"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Create-Event-OK-Response"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/events/{id}/attend": {
+      "post": {
+        "tags": ["Events"],
+        "summary": "Attend event - Eventee",
+        "description": "Add Eventee",
+        "operationId": "addEventee",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the event",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "669e7ff23945fc0e4c29e95e"
+            },
+            "examples": {
+              "default": {
+                "value": "669e7ff23945fc0e4c29e95e"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/AttendEvent"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/events/{id}": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "Get an event by ID",
+        "description": "Get an Event by ID",
+        "operationId": "getEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the event",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "example": "669aa2056e30b8841df08849"
+            },
+            "examples": {
+              "default": {
+                "value": "669aa2056e30b8841df08849"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "default": "Event retrieval successful"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Event"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      },
+      "patch": {
+        "tags": ["Events"],
+        "summary": "Update an event by ID",
+        "description": "Update an Event by ID",
+        "operationId": "updateEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the event",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "$ref": "#/components/requestBodies/UpdateEvent"
+        },
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string",
+                      "default": "Event update successful"
+                    },
+                    "data": {
+                      "$ref": "#/components/schemas/Event"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      },
+      "delete": {
+        "tags": ["Events"],
+        "summary": "Delete an event by ID",
+        "description": "Delete an Event by ID",
+        "operationId": "deleteEvent",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the event",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "No Content"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/events/{id}/tickets": {
+      "get": {
+        "tags": ["Events"],
+        "summary": "View all tickets for an event (CREATOR)",
+        "description": "View all tickets for an event (CREATOR)",
+        "operationId": "getEventTickets",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The id of the event",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of tickets for the event"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/tickets/{ticketId}": {
+      "get": {
+        "tags": ["Tickets"],
+        "summary": "Get ticket by ID",
+        "description": "Get ticket by ID",
+        "operationId": "getTicketById",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "description": "The id of the ticket",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ticket details retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "ticket": {
+                      "$ref": "#/components/schemas/Ticket"
+                    }
+                  },
+                  "x-examples": {
+                    "Example 1": {
+                      "message": "Ticket retrieval successful",
+                      "ticket": {
+                        "_id": "66b4979907c19d747d6d10b9",
+                        "event": {
+                          "title": "The August Protests 5.1"
+                        },
+                        "user": "66a636f89ea1d6315545aacf",
+                        "qrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111321/event_qr_codes/mcgb1cqzjwcbcwrwgrdk.png",
+                        "status": "cancelled",
+                        "purchasedAt": "2024-08-08T10:02:01.086Z",
+                        "__v": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/api/tickets/{ticketId}/scan": {
+      "post": {
+        "tags": ["Tickets"],
+        "summary": "Endpoint to scan a ticket (CREATOR)",
+        "description": "Endpoint to scan a ticket (CREATOR)",
+        "operationId": "post-api-tickets-ticketId-scan",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "description": "The id of the ticket",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "x-examples": {
+                    "Example 1": {
+                      "message": "Ticket scanned successfully"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/tickets/{ticketId}/cancel": {
+      "patch": {
+        "tags": ["Tickets"],
+        "summary": "Endpoint to cancel a ticket",
+        "description": "Endpoint to cancel a ticket",
+        "operationId": "get-tickets-ticketId-cancel",
+        "parameters": [
+          {
+            "name": "ticketId",
+            "in": "path",
+            "description": "The ticketID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "x-examples": {
+                    "Example 1": {
+                      "message": "Ticket cancelled successfully"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/tickets/event/{eventId}": {
+      "get": {
+        "tags": ["Tickets"],
+        "summary": "Get logged in user ticket by event ID",
+        "description": "Get logged in user ticket by event ID",
+        "operationId": "get-tickets-event-eventId",
+        "parameters": [
+          {
+            "name": "eventId",
+            "in": "path",
+            "description": "The event ID",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    },
+                    "ticket": {
+                      "type": "object",
+                      "properties": {
+                        "_id": {
+                          "type": "string"
+                        },
+                        "event": {
+                          "type": "object",
+                          "properties": {
+                            "title": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "user": {
+                          "type": "string"
+                        },
+                        "qrCode": {
+                          "type": "string"
+                        },
+                        "status": {
+                          "type": "string"
+                        },
+                        "purchasedAt": {
+                          "type": "string"
+                        }
+                      }
+                    }
+                  },
+                  "x-examples": {
+                    "Example 1": {
+                      "message": "Ticket retrieval successful",
+                      "ticket": {
+                        "_id": "66b4979907c19d747d6d10b9",
+                        "event": {
+                          "title": "The August Protests 5.1"
+                        },
+                        "user": "66a636f89ea1d6315545aacf",
+                        "qrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111321/event_qr_codes/mcgb1cqzjwcbcwrwgrdk.png",
+                        "status": "cancelled",
+                        "purchasedAt": "2024-08-08T10:02:01.086Z",
+                        "__v": 0
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/events/categories": {
+      "get": {
+        "tags": ["Event Category"],
+        "summary": "Retrieves all categories",
+        "description": "Retrieves all categories",
+        "operationId": "get-events-categories",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/Get-All-Events"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      },
+      "post": {
+        "tags": ["Event Category"],
+        "summary": "Add a new category (SUPER ADMIN)",
+        "description": "Add a new event category (SUPER ADMIN)",
+        "operationId": "add-events-categories",
+        "responses": {
+          "201": {
+            "$ref": "#/components/responses/200-Category"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    },
+    "/events/categories/{id}": {
+      "get": {
+        "tags": ["Event Category"],
+        "summary": "Get a category by ID",
+        "description": "Get a category by ID",
+        "operationId": "get-events-categories-id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the category",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200-Category"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      },
+      "patch": {
+        "tags": ["Event Category"],
+        "summary": "Update a category by ID",
+        "description": "Update a category by ID",
+        "operationId": "update-events-categories-id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the category",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200-Category"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      },
+      "delete": {
+        "tags": ["Event Category"],
+        "summary": "Delete a category by ID",
+        "description": "Delete a category by ID",
+        "operationId": "delete-events-categories-id",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "The ID of the category",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/200-Category"
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "servers": [
+          {
+            "url": "http://localhost:3300",
+            "description": "Development Server"
+          },
+          {
+            "url": "https://eventful-api-nxu6.onrender.com",
+            "description": "Staging Server"
+          }
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints related to user authentication"
+    },
+    {
+      "name": "Event Category",
+      "description": "Endpoints related to Event category management"
+    },
+    {
+      "name": "Events",
+      "description": "Endpoints related to event management"
+    },
+    {
+      "name": "Tickets",
+      "description": "Endpoints related to Ticket management"
+    },
+    {
+      "name": "User",
+      "description": "Endpoints related to User management"
+    }
+  ],
+  "components": {
+    "requestBodies": {
+      "RegisterUser": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                },
+                "role": {
+                  "type": "string"
+                }
+              },
+              "x-examples": {
+                "Example 1": {
+                  "name": "John Doe",
+                  "email": "johndoe@mail.com",
+                  "password": "123456",
+                  "role": "creator"
+                }
+              }
+            }
+          }
+        }
+      },
+      "LoginUser": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "email": {
+                  "type": "string"
+                },
+                "password": {
+                  "type": "string"
+                }
+              },
+              "x-examples": {
+                "Example 1": {
+                  "email": "johndoe@mail.com",
+                  "password": "123456"
+                }
+              }
+            }
+          }
+        }
+      },
+      "CreateEvent": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string"
+                },
+                "time": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description",
+                "category",
+                "location",
+                "date",
+                "time"
+              ],
+              "x-examples": {
+                "Example 1": {
+                  "title": "The August Protests",
+                  "description": "Oragnised by President Tinubu",
+                  "location": "Nigeria",
+                  "date": "2024-08-10",
+                  "time": "18:00"
+                }
+              }
+            }
+          }
+        }
+      },
+      "UpdateEvent": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string"
+                },
+                "time": {
+                  "type": "string"
+                },
+                "location": {
+                  "type": "string"
+                },
+                "defaultReminderDate": {
+                  "type": "string"
+                },
+                "category": {
+                  "type": "string"
+                }
+              },
+              "x-examples": {
+                "Example 1": {
+                  "title": "string",
+                  "description": "string",
+                  "date": "2019-08-24T14:15:22Z",
+                  "time": "string",
+                  "location": "string",
+                  "defaultReminderDate": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "basic"
+      }
+    },
+    "responses": {
+      "200-Category": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "category": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              },
+              "x-examples": {
+                "Example 1": {
+                  "message": "Category retrieval successful",
+                  "category": {
+                    "_id": "66b61949cfe178478521356f",
+                    "name": "Business & Professional"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "Not Found",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "default": "Not found"
+                },
+                "statusCode": {
+                  "type": "integer",
+                  "default": 404
+                }
+              }
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Forbidden",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "default": "Forbidden"
+                },
+                "statusCode": {
+                  "type": "integer",
+                  "default": 403
+                }
+              }
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Unauthorized",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string",
+                  "default": "Unauthorized"
+                },
+                "statusCode": {
+                  "type": "integer",
+                  "default": 401
+                }
+              }
+            }
+          }
+        }
+      },
+      "BadRequest": {
+        "description": "Bad request",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "error": {
+                  "type": "string"
+                },
+                "statusCode": {
+                  "type": "integer",
+                  "default": 400
+                }
+              },
+              "x-examples": {
+                "Example 1": {
+                  "message": "Error Message",
+                  "error": "Bad Request",
+                  "statusCode": 400
+                }
+              }
+            }
+          }
+        }
+      },
+      "Login-OK-Response": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "$ref": "#/components/schemas/User"
+                    }
+                  }
+                }
+              },
+              "x-examples": {
+                "Example 1": {
+                  "message": "Login successful",
+                  "data": {
+                    "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2NmE2MzZmODllYTFkNjMxNTU0NWFhY2YiLCJyb2xlIjoiZXZlbnRlZSIsImlhdCI6MTcyMzExNTk1MywiZXhwIjoxNzIzMTE5NTUzfQ.FLKJfvszIS39USB-kCwKxXX8iOpArAYi_PmWuKyUeg0",
+                    "user": {
+                      "_id": "66a636f89ea1d6315545aacf",
+                      "name": "Ola Josh",
+                      "email": "olajosh94+13@gmail.com",
+                      "role": "eventee",
+                      "events": [
+                        "66a3e23e4b7d10964cafb4b9",
+                        "66ad245b40fd4671dd4786d7",
+                        "66a24b50a1b78c41aa51165f",
+                        "66b4968e0e4a0e0cc267353e"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Create-Event-OK-Response": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "event": {
+                  "$ref": "#/components/schemas/Event"
+                }
+              }
+            }
+          }
+        }
+      },
+      "RegisterUser-OK-Response": {
+        "description": ""
+      },
+      "AttendEvent": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "type": "object",
+                  "properties": {
+                    "event": {
+                      "type": "string"
+                    },
+                    "user": {
+                      "type": "string"
+                    },
+                    "qrCode": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string"
+                    },
+                    "_id": {
+                      "type": "string"
+                    },
+                    "purchasedAt": {
+                      "type": "string"
+                    },
+                    "__v": {
+                      "type": "integer"
+                    }
+                  }
+                }
+              },
+              "x-examples": {
+                "Example 1": {
+                  "message": "Successfully registered for the event",
+                  "data": {
+                    "event": "66b4968e0e4a0e0cc267353e",
+                    "user": "66a636f89ea1d6315545aacf",
+                    "qrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111321/event_qr_codes/mcgb1cqzjwcbcwrwgrdk.png",
+                    "status": "purchased",
+                    "_id": "66b4979907c19d747d6d10b9",
+                    "purchasedAt": "2024-08-08T10:02:01.086Z",
+                    "__v": 0
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "Get-All-Events": {
+        "description": "Example response",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "message": {
+                  "type": "string"
+                },
+                "data": {
+                  "$ref": "#/components/schemas/Category"
+                }
+              },
+              "x-examples": {
+                "Example 1": {
+                  "message": "Event retrieval successful",
+                  "data": {
+                    "events": [
+                      {
+                        "_id": "66a24b50a1b78c41aa51165f",
+                        "title": "Sapa Events 5.0",
+                        "description": "Organised by Brown",
+                        "date": "2024-07-26",
+                        "time": "8:00AM",
+                        "location": "Nigeria",
+                        "creator": {
+                          "name": "James Brown"
+                        },
+                        "attendees": ["66a636f89ea1d6315545aacf"],
+                        "defaultReminderDate": "2024-07-25T07:00:00.000Z"
+                      },
+                      {
+                        "_id": "66a3e23e4b7d10964cafb4b9",
+                        "title": "Sapa Events 2.0",
+                        "description": "Organised by Shetimma",
+                        "date": "2024-07-28",
+                        "time": "8:00AM",
+                        "location": "Nigeria",
+                        "creator": {
+                          "name": "Scott Allen"
+                        },
+                        "attendees": ["66a636f89ea1d6315545aacf"],
+                        "defaultReminderDate": "2024-07-27T07:00:00.000Z",
+                        "eventQrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111057/event_qr_codes/zntowjaxtebhblonltif.png"
+                      },
+                      {
+                        "_id": "66ad245b40fd4671dd4786d7",
+                        "title": "For Food Only",
+                        "description": "Come and eat till your belle full",
+                        "date": "2024-08-03",
+                        "time": "8:00AM",
+                        "location": "Lagos",
+                        "creator": {
+                          "name": "Sola Adeleke"
+                        },
+                        "attendees": ["66a636f89ea1d6315545aacf"],
+                        "defaultReminderDate": "2024-08-02T07:00:00.000Z",
+                        "eventQrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111057/event_qr_codes/zntowjaxtebhblonltif.png"
+                      },
+                      {
+                        "_id": "66af6bb257ff19ed664def9e",
+                        "title": "The August Protests 3.0",
+                        "description": "Oragnised by Thiefnubu",
+                        "date": "2024-08-08",
+                        "time": "8:00AM",
+                        "location": "Nigeria",
+                        "creator": {
+                          "name": "Chigozie Alex"
+                        },
+                        "attendees": [],
+                        "defaultReminderDate": "2024-08-07T07:00:00.000Z",
+                        "eventDateTime": "2024-08-08T07:00:00.000Z",
+                        "eventQrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111057/event_qr_codes/zntowjaxtebhblonltif.png"
+                      },
+                      {
+                        "_id": "66af6c1757ff19ed664defa2",
+                        "title": "Osun Twitta Hangout",
+                        "description": "Oragnised by Inside Osogbo",
+                        "date": "2024-08-08",
+                        "time": "18:00",
+                        "location": "Osogbo, Osun State",
+                        "creator": {
+                          "name": "Hamid Muhammad"
+                        },
+                        "attendees": [],
+                        "defaultReminderDate": "2024-08-07T17:00:00.000Z",
+                        "eventDateTime": "2024-08-08T17:00:00.000Z",
+                        "eventQrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111057/event_qr_codes/zntowjaxtebhblonltif.png"
+                      },
+                      {
+                        "_id": "66af6f1d57ff19ed664defa6",
+                        "title": "Food Hangout 3.0",
+                        "description": "Oragnised by Cleo",
+                        "date": "2024-08-08",
+                        "time": "08:00",
+                        "location": "Nigeria",
+                        "creator": {
+                          "name": "Oluwaseun Cleopatra"
+                        },
+                        "attendees": ["66a636f89ea1d6315545aacf"],
+                        "defaultReminderDate": "2024-08-03T17:00:00.000Z",
+                        "eventDateTime": "2024-08-04T17:00:00.000Z",
+                        "eventQrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111057/event_qr_codes/zntowjaxtebhblonltif.png"
+                      },
+                      {
+                        "_id": "66b226dfba82a6dc96fabf63",
+                        "title": "Kano Hangout 3.0",
+                        "description": "Oragnised by Hammid",
+                        "date": "2024-08-08",
+                        "time": "18:00",
+                        "location": "Nigeria",
+                        "creator": {
+                          "name": "Hamid Muhammad"
+                        },
+                        "attendees": [],
+                        "defaultReminderDate": "2024-08-07T18:00:00.000Z",
+                        "eventDateTime": "2024-08-08T18:00:00.000Z",
+                        "eventQrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111057/event_qr_codes/zntowjaxtebhblonltif.png"
+                      }
+                    ],
+                    "metadata": {
+                      "page": 1,
+                      "limit": 10,
+                      "totalPages": 1,
+                      "totalCount": 7,
+                      "hasPreviousPage": false,
+                      "hasNextPage": false
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "events": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "x-examples": {
+          "Example 1": {
+            "_id": "66a636f89ea1d6315545aacf",
+            "name": "John Doe",
+            "email": "johndoe@example.com",
+            "role": "eventee",
+            "events": [
+              "66a3e23e4b7d10964cafb4b9",
+              "66ad245b40fd4671dd4786d7",
+              "66a24b50a1b78c41aa51165f",
+              "66b4968e0e4a0e0cc267353e"
+            ]
+          }
+        }
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "creator": {
+            "type": "string"
+          },
+          "category": {
+            "type": "string"
+          },
+          "attendees": {
+            "type": "array",
+            "items": {
+              "type": "object"
+            }
+          },
+          "defaultReminderDate": {
+            "type": "string"
+          },
+          "eventDateTime": {
+            "type": "string"
+          },
+          "_id": {
+            "type": "string"
+          },
+          "eventQrCode": {
+            "type": "string"
+          }
+        },
+        "x-examples": {
+          "Example 1": {
+            "title": "AltSchool Graduation",
+            "description": "Graduation ceremony for AltSchool Tinuyuka 2023 Students",
+            "date": "2024-08-16",
+            "time": "10:00",
+            "location": "Nigeria",
+            "creator": "669e74b22f8115097a5c4787",
+            "attendees": [],
+            "defaultReminderDate": "2024-08-015T08:00:00.000Z",
+            "eventDateTime": "2024-08-16T10:00:00.000Z",
+            "_id": "66b4968e0e4a0e0cc267353e",
+            "eventQrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111057/event_qr_codes/zntowjaxtebhblonltif.png"
+          }
+        }
+      },
+      "Ticket": {
+        "type": "object",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string"
+          },
+          "user": {
+            "type": "string"
+          },
+          "qrCode": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "purchasedAt": {
+            "type": "string"
+          }
+        },
+        "x-examples": {
+          "Example 1": {
+            "_id": "66b4979907c19d747d6d10b9",
+            "event": "66b4968e0e4a0e0cc267353e",
+            "user": "66a636f89ea1d6315545aacf",
+            "qrCode": "https://res.cloudinary.com/dev-storage/image/upload/v1723111321/event_qr_codes/mcgb1cqzjwcbcwrwgrdk.png",
+            "status": "purchased",
+            "purchasedAt": "2024-08-08T10:02:01.086Z"
+          }
+        }
+      },
+      "Category": {
+        "type": "object",
+        "description": "Event category",
+        "properties": {
+          "_id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          }
+        },
+        "x-examples": {
+          "Example 1": {
+            "_id": "66b61949cfe178478521356f",
+            "name": "Business & Professional"
+          }
+        }
+      }
+    }
+  },
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "x-internal": false
+}

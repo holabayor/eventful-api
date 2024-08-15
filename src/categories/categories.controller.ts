@@ -19,12 +19,12 @@ import { CategoryService } from './categories.service';
 import { CategoryDto } from './dto/category.dto';
 
 @Controller('events/categories')
-@UseGuards(JwtAuthGuard, RolesGuard)
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   // @Roles(Role.Superadmin)
   @Post()
+  @UseGuards(JwtAuthGuard, RolesGuard)
   async create(@Body() createCategoryDto: CategoryDto) {
     const category = await this.categoryService.create(createCategoryDto);
     return { message: SystemMessages.CATEGORY_CREATE_SUCCESS, category };
@@ -55,6 +55,7 @@ export class CategoryController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
+  @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles(Role.Superadmin)
   async update(
     @Param() params: paramsIdDto,
@@ -75,6 +76,7 @@ export class CategoryController {
   @ApiResponse({ status: 403, description: 'Forbidden' })
   @ApiResponse({ status: 500, description: 'Internal Server Error' })
   @HttpCode(204)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   // @Roles(Role.Superadmin)
   remove(@Param() params: paramsIdDto) {
     return this.categoryService.delete(params.id);

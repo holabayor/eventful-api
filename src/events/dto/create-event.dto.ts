@@ -25,6 +25,9 @@ export class CreateEventDto {
   readonly date: string;
 
   @IsString()
+  readonly imageUrl: string;
+
+  @IsString()
   @IsValidTime()
   time: string;
 

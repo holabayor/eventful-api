@@ -25,6 +25,9 @@ export class Event extends Document {
   @Prop({ required: true, type: String })
   location: string;
 
+  @Prop({ required: true, type: String })
+  imageUrl: string;
+
   @Prop({ type: Types.ObjectId, ref: 'User', required: true })
   creator: Types.ObjectId;
 

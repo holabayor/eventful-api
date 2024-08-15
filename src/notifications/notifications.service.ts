@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectModel } from '@nestjs/mongoose';
+import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
 import { Model } from 'mongoose';
-import * as scheduler from 'node-schedule';
 import * as nodemailer from 'nodemailer';
+import { CombinedLogger } from 'src/common/logger/combined.logger';
 import { Notification } from './notifications.entity';
 
 @Injectable()
@@ -13,7 +15,9 @@ export class NotificationsService {
   constructor(
     @InjectModel(Notification.name)
     private notificationModel: Model<Notification>,
+    private readonly logger: CombinedLogger,
     private config: ConfigService,
+    private schedulerRegistry: SchedulerRegistry,
   ) {
     this.transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -36,22 +40,35 @@ export class NotificationsService {
       html,
     };
     try {
-      return this.transporter.sendMail(mailOptions);
+      await this.transporter.sendMail(mailOptions);
+      this.logger.log(`Email sent to ${to}`);
     } catch (error) {
+      this.logger.error(`Failed to send email to ${to}`, error.stack);
       throw new Error('Error sending email');
     }
   }
 
   async scheduleNotification(notification: Notification): Promise<void> {
-    scheduler.scheduleJob(notification.reminderDate, async () => {
+    const jobName = `notification-${notification.id}`;
+    const date = new Date(notification.reminderDate);
+
+    const job = new CronJob(date, async () => {
       const subject = `Reminder for ${notification.eventTitle}`;
       const html = `Dear user.\n\nThis is a reminder for the event: ${notification.eventTitle}.\n\nBest Regards,\nEventul Team`;
-      this.sendMail(notification.email, subject, html);
+
+      await this.sendMail(notification.email, subject, html);
 
       await this.notificationModel.findByIdAndUpdate(notification.id, {
         status: 'sent',
       });
+      this.logger.log(
+        `Reminder email sent to ${notification.email} for event ${notification.eventTitle}`,
+      );
     });
+
+    this.schedulerRegistry.addCronJob(jobName, job);
+
+    job.start();
   }
 
   async sendTicketNotification(
@@ -61,10 +78,10 @@ export class NotificationsService {
   ): Promise<void> {
     const subject = `Your Ticket for ${eventTitle}`;
     const html = `<p>Dear Attendee,</p>
-    <p>You have successfully registered for ${eventTitle}.</p>
-    <p> Here is your ticket:</p>
-    <p><img src=${qrCode} alt="QR Code" /></p>
-    <p>Please present this QR code at the event for entry.</p>`;
+                  <p>You have successfully registered for ${eventTitle}.</p>
+                  <p> Here is your ticket:</p>
+                  <p><img src=${qrCode} alt="QR Code" /></p>
+                  <p>Please present this QR code at the event for entry.</p>`;
 
     this.sendMail(email, subject, html);
   }
@@ -72,9 +89,7 @@ export class NotificationsService {
   async createNotification(
     notificationData: Partial<Notification>,
   ): Promise<Notification> {
-    const notification = new this.notificationModel(notificationData);
-
-    await notification.save();
+    const notification = await this.notificationModel.create(notificationData);
 
     await this.scheduleNotification(notification);
 
@@ -83,5 +98,16 @@ export class NotificationsService {
 
   async getNotifications(): Promise<Notification[]> {
     return await this.notificationModel.find().exec();
+  }
+
+  @Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+  async checkPendingNotifications() {
+    const pendingNotifications = await this.notificationModel
+      .find({ status: 'scheduled' })
+      .exec();
+
+    pendingNotifications.forEach(async (notification) => {
+      this.scheduleNotification(notification);
+    });
   }
 }

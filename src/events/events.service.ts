@@ -296,7 +296,7 @@ export class EventsService {
     user.events.push(eventId);
     await user.save();
 
-    this.notificationsService.sendTicketNotification(
+    await this.notificationsService.sendTicketNotification(
       user.email,
       event.title,
       ticket.qrCode,

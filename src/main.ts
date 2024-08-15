@@ -1,4 +1,5 @@
 import { ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 import { readFileSync } from 'fs';
@@ -8,7 +9,8 @@ import { CombinedLogger } from './common/logger/combined.logger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useLogger(app.get(CombinedLogger));
-  // app.useGlobalInterceptors(new LoggingInterceptor());
+
+  app.enableCors();
   app.setGlobalPrefix('api');
   app.useGlobalPipes(
     new ValidationPipe({
@@ -27,6 +29,7 @@ async function bootstrap() {
   const document = JSON.parse(readFileSync('docs/openapi.json', 'utf8'));
   // console.log('The document is ', document);
   SwaggerModule.setup('api-docs', app, document);
-  await app.listen(3300);
+  const port = app.get<ConfigService>(ConfigService).get<number>('PORT');
+  await app.listen(port);
 }
 bootstrap();
