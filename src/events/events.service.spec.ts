@@ -100,6 +100,8 @@ describe('EventsService', () => {
         time: '08:00am',
         location: 'Freedom Park',
         category: new Types.ObjectId(),
+        imageUrl: 'imageurl',
+        additionalDetails: 'some text',
       };
 
       const result = await service.create(new Types.ObjectId(), eventDto);

@@ -2,6 +2,7 @@ import { ConfigModule } from '@nestjs/config';
 import { getModelToken } from '@nestjs/mongoose';
 import { Test, TestingModule } from '@nestjs/testing';
 import { Model } from 'mongoose';
+import { CombinedLogger } from '../common/logger/combined.logger';
 import { Notification } from './notifications.entity';
 import { NotificationsService } from './notifications.service';
 
@@ -20,6 +21,10 @@ describe('NotificationsService', () => {
             create: jest.fn().mockResolvedValue({}),
             findById: jest.fn(),
           },
+        },
+        {
+          provide: CombinedLogger,
+          useValue: { log: jest.fn(), warn: jest.fn(), setContext: jest.fn() },
         },
       ],
     }).compile();

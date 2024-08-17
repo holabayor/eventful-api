@@ -22,4 +22,10 @@ export class AuthController {
     const data = await this.authService.login(AuthDto);
     return { message: SystemMessages.AUTH_LOGIN_SUCCESS, data };
   }
+
+  @Post('logout')
+  @HttpCode(200)
+  logout() {
+    return;
+  }
 }
