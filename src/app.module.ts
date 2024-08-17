@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AuthModule } from './auth/auth.module';
 import { CategoryModule } from './categories/categories.module';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter';
@@ -23,6 +24,12 @@ import { UserModule } from './users/user.module';
       url: process.env.REDIS_URL,
     }),
     MongooseModule.forRoot(process.env.MONGODB_URI),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60,
+        limit: 10,
+      },
+    ]),
     CategoryModule,
     UserModule,
     AuthModule,
