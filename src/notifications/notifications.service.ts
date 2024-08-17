@@ -5,7 +5,7 @@ import { Cron, CronExpression, SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
 import { Model } from 'mongoose';
 import * as nodemailer from 'nodemailer';
-import { CombinedLogger } from 'src/common/logger/combined.logger';
+import { CombinedLogger } from '../common/logger/combined.logger';
 import { Notification } from './notifications.entity';
 
 @Injectable()
