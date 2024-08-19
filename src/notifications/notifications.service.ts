@@ -6,11 +6,12 @@ import { CronJob } from 'cron';
 import { Model } from 'mongoose';
 import * as nodemailer from 'nodemailer';
 import { CombinedLogger } from '../common/logger/combined.logger';
+import { CreateNotificationDto } from './dto/create-notification.dto';
 import { Notification } from './notifications.entity';
 
 @Injectable()
 export class NotificationsService {
-  private transporter;
+  private transporter: nodemailer.Transporter;
 
   constructor(
     @InjectModel(Notification.name)
@@ -87,7 +88,7 @@ export class NotificationsService {
   }
 
   async createNotification(
-    notificationData: Partial<Notification>,
+    notificationData: CreateNotificationDto,
   ): Promise<Notification> {
     const notification = await this.notificationModel.create(notificationData);
 
