@@ -1,73 +1,161 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# Eventful API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Eventful is an event management application that allows users to create, manage, and attend events. This API provides endpoints for user authentication, event management, ticketing, and more.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+**Live API Documentation**: [https://eventful-api.stoplight.io/docs/eventful](https://eventful-api.stoplight.io/docs/eventful)
 
-## Description
+**Hosted Base URL**: [https://eventful-api-nxu6.onrender.com](https://eventful-api-nxu6.onrender.com)
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Table of Contents
 
-## Installation
+- [Getting Started](#getting-started)
+- [API Endpoints](#api-endpoints)
+  - [Authentication](#authentication)
+  - [User Management](#user-management)
+  - [Event Management](#event-management)
+  - [Ticket Management](#ticket-management)
+- [Models](#models)
+  - [User Model](#user-model)
+  - [Event Model](#event-model)
+  - [Ticket Model](#ticket-model)
+  - [Category Model](#category-model)
+- [Security](#security)
+- [Running Locally](#running-locally)
+- [Deployment](#deployment)
+- [License](#license)
+- [Contact](#contact)
 
-```bash
-$ npm install
-```
+## Getting Started
 
-## Running the app
+To get started with the Eventful API, you will need to set up the environment, install dependencies, and run the application.
 
-```bash
-# development
-$ npm run start
+### Prerequisites
 
-# watch mode
-$ npm run start:dev
+- Node.js v14 or higher
+- MongoDB
 
-# production mode
-$ npm run start:prod
-```
+### Installation
 
-## Test
+1. Clone the repository:
 
-```bash
-# unit tests
-$ npm run test
+   ```bash
+   git clone https://github.com/holabayor/eventful-api.git
+   ```
 
-# e2e tests
-$ npm run test:e2e
+2. Navigate to the project directory:
 
-# test coverage
-$ npm run test:cov
-```
+   ```bash
+   cd eventful-api
+   ```
 
-## Support
+3. Install dependencies:
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+   ```bash
+   npm install
+   ```
 
-## Stay in touch
+4. Set up environment variables. Create a `.env` file in the root directory and add the following and other variables according to the `.env.example` file:
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+   ```bash
+   PORT=3300
+   MONGODB_URI=mongodb://localhost:27017/eventful
+   JWT_SECRET=your_jwt_secret
+   ```
+
+5. Start the development server:
+
+   ```bash
+   npm run start:dev
+   ```
+
+## API Endpoints
+
+### Authentication
+
+- **POST /api/auth/register**: Registers a new user.
+- **POST /api/auth/login**: Logs in a user.
+
+### User Management
+
+- **GET /api/users/me**: Retrieves the currently logged-in user.
+- **GET /api/users/events**: Retrieves all events the user has registered for.
+- **GET /api/users/created-events**: Retrieves all events created by the user (for event creators).
+
+### Event Management
+
+- **GET /api/events**: Retrieves all events.
+- **POST /api/events**: Creates a new event (for event creators).
+- **GET /api/events/{id}**: Retrieves an event by ID.
+- **PATCH /api/events/{id}**: Updates an event by ID.
+- **DELETE /api/events/{id}**: Deletes an event by ID.
+
+### Ticket Management
+
+- **GET /api/events/{id}/tickets**: Retrieves all tickets for an event (for event creators).
+- **GET /api/tickets/{ticketId}**: Retrieves a ticket by ID.
+- **POST /api/events/{id}/attend**: Adds an attendee to an event.
+- **PATCH /tickets/{ticketId}/cancel**: Cancels a ticket.
+- **POST /api/tickets/{ticketId}/scan**: Scans a ticket (for event creators).
+
+## Models
+
+### User Model
+
+- **\_id**: Unique identifier for the user.
+- **name**: Name of the user.
+- **email**: Email address of the user.
+- **role**: Role of the user (e.g., eventee, creator).
+- **events**: Array of event IDs the user is associated with.
+
+### Event Model
+
+- **\_id**: Unique identifier for the event.
+- **title**: Title of the event.
+- **description**: Description of the event.
+- **date**: Date of the event.
+- **time**: Time of the event.
+- **imageUrl**: Image banner of the event.
+- **location**: Location of the event.
+- **creator**: ID of the event creator.
+- **attendees**: Array of attendees for the event.
+- **defaultReminderDate**: Default reminder date for the event.
+- **eventQrCode**: QR code associated with the event.
+- **additionalDetails**: Additional information/details the event.
+
+### Ticket Model
+
+- **\_id**: Unique identifier for the ticket.
+- **event**: ID of the event associated with the ticket.
+- **user**: ID of the user who owns the ticket.
+- **qrCode**: QR code associated with the ticket.
+- **status**: Status of the ticket (e.g., purchased, cancelled).
+- **purchasedAt**: Date and time when the ticket was purchased.
+
+### Category Model
+
+- **\_id**: Unique identifier for the category.
+- **name**: Name of the category.
+
+## Security
+
+This API uses JWT (JSON Web Tokens) for authentication. The token should be included in the `Authorization` header as a Bearer token for endpoints that require authentication.
+
+## Running Locally
+
+To run the application locally, follow the steps in the [Getting Started](#getting-started) section.
+
+## Deployment
+
+The API can be deployed to any platform that supports Node.js applications. Ensure that the environment variables are properly configured in the deployment environment.
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the Apache 2.0 License. See the [LICENSE](http://www.apache.org/licenses/LICENSE-2.0.html) file for details.
+
+## Contact
+
+For any questions or feedback, please contact the project maintainer:
+
+- **Name**: Liasu Aanuoluwapo
+- **Email**: liasu.olabayo@gmail.com
+- **GitHub**: [holabayor](https://github.com/holabayor)
