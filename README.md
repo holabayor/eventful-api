@@ -157,5 +157,5 @@ This project is licensed under the Apache 2.0 License. See the [LICENSE](http://
 For any questions or feedback, please contact the project maintainer:
 
 - **Name**: Liasu Aanuoluwapo
-- **Email**: [liasu.olabayo@gmail.com] (mailto:liasu.olabayo@gmail.com) 
+- **Email**: liasu.olabayo@gmail.com
 - **GitHub**: [holabayor](https://github.com/holabayor)
