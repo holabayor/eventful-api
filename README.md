@@ -25,6 +25,7 @@ Eventful is an event management application that allows users to create, manage,
 - [License](#license)
 - [Contact](#contact)
 
+
 ## Getting Started
 
 To get started with the Eventful API, you will need to set up the environment, install dependencies, and run the application.
